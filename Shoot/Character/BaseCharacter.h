@@ -51,7 +51,10 @@ private:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	class AShootingGameMode* GameMode;
 
-	
+
+	// (패킷로스) 서버보상에 대응할 콜리전 박스
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* PktLagColisionBox;
 
 
 
