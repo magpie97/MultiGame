@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,7 +7,7 @@
 #include "PktLagComponent.generated.h"
 
 
-// ¾×ÅÍ ÄÄÆ÷³ÍÆ®ÀÎ PktLag collisionÀÇ Á¤º¸¸¦ ÀúÀåÇÒ ±¸Á¶Ã¼
+// ì•¡í„° ì»´í¬ë„ŒíŠ¸ì¸ PktLag collisionì˜ ì •ë³´ë¥¼ ì €ì¥í•  êµ¬ì¡°ì²´
 USTRUCT(BlueprintType)
 struct FPktLagCapsuleTransform
 {
@@ -28,7 +28,7 @@ struct FPktLagCapsuleTransform
 
 };
 
-// Ä³¸¯ÅÍ PktLag ±¸Á¶Ã¼, 
+// ìºë¦­í„° PktLag êµ¬ì¡°ì²´, 
 USTRUCT(BlueprintType)
 struct FPktLagStruct
 {
@@ -54,11 +54,11 @@ public:
 
 	friend class ABaseCharacter;
 
-	//PktLag ÄÄÆ÷³ÍÆ®¿¡ transformÀ» ÀúÀå
+	//PktLag ì»´í¬ë„ŒíŠ¸ì— transformì„ ì €ì¥
 	UFUNCTION()
 	void PktLagSaveLocation(FPktLagStruct& PktLagStruct);
 
-	// PktLag µğ¹ö±× Àü¿ë
+	// PktLag ë””ë²„ê·¸ ì „ìš©
 	UFUNCTION()
 	void PktLagDebugCapsule(FPktLagStruct& PktLagStruct, FColor Color);
 

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "PktLagComponent.h"
@@ -22,10 +22,10 @@ void UPktLagComponent::BeginPlay()
 	
 	FPktLagStruct PktLagStruct;
 
-	// PktLag ÄÄÆ÷³ÍÆ®¸¦ ÀúÀåÇÒ ±¸Á¶Ã¼ 
+	// PktLag ì»´í¬ë„ŒíŠ¸ë¥¼ ì €ì¥í•  êµ¬ì¡°ì²´ 
 	PktLagSaveLocation(PktLagStruct);
 
-	// ÀúÀåµÈ PktLag ±¸Á¶Ã¼ debug
+	// ì €ì¥ëœ PktLag êµ¬ì¡°ì²´ debug
 	PktLagDebugCapsule(PktLagStruct, FColor::Red);
 
 	
@@ -45,17 +45,17 @@ void UPktLagComponent::PktLagSaveLocation(FPktLagStruct& PktLagStruct)
 
 	PktLagStruct.PktLagTime = GetWorld()->GetTimeSeconds();
 
-	// ¸ÅÇÎµÈ collision component¸¦ À§Ä¡, È¸Àü, Áö¸§, Àı¹İ ³ôÀÌÀÇ °ªÀ» °¡Á®¿Í Àß °¡Á®¿Ô´ÂÁö debug¸¦ ÀÛ¼º
+	// ë§¤í•‘ëœ collision componentë¥¼ ìœ„ì¹˜, íšŒì „, ì§€ë¦„, ì ˆë°˜ ë†’ì´ì˜ ê°’ì„ ê°€ì ¸ì™€ ì˜ ê°€ì ¸ì™”ëŠ”ì§€ debugë¥¼ ì‘ì„±
 	for (auto& PktLagCapsule : Character->PktLagMappingComponent)
 	{
-		// Map ÄÁÅ×ÀÌ³Ê¸¦ »ç¿ëÇÏ±â¿¡ key, value·Î ÁöÁ¤ÇÏ¿© ¿ä¼Ò ÂüÁ¶
+		// Map ì»¨í…Œì´ë„ˆë¥¼ ì‚¬ìš©í•˜ê¸°ì— key, valueë¡œ ì§€ì •í•˜ì—¬ ìš”ì†Œ ì°¸ì¡°
 		FPktLagCapsuleTransform PktLagCT;
-		PktLagCT.PktLagCapsuleComponentLocation = PktLagCapsule.Value->GetComponentLocation();			// À§Ä¡
-		PktLagCT.PktLagCapsuleComponentRotator = PktLagCapsule.Value->GetComponentRotation();			// È¸Àü
-		PktLagCT.PktLagCapsuleComponentRadius = PktLagCapsule.Value->GetScaledCapsuleRadius();			// ¹İÁö¸§
-		PktLagCT.PktLagCapsuleComponentHalfHeight = PktLagCapsule.Value->GetScaledCapsuleHalfHeight();	// Àı¹İ ³ôÀÌ
+		PktLagCT.PktLagCapsuleComponentLocation = PktLagCapsule.Value->GetComponentLocation();			// ìœ„ì¹˜
+		PktLagCT.PktLagCapsuleComponentRotator = PktLagCapsule.Value->GetComponentRotation();			// íšŒì „
+		PktLagCT.PktLagCapsuleComponentRadius = PktLagCapsule.Value->GetScaledCapsuleRadius();			// ë°˜ì§€ë¦„
+		PktLagCT.PktLagCapsuleComponentHalfHeight = PktLagCapsule.Value->GetScaledCapsuleHalfHeight();	// ì ˆë°˜ ë†’ì´
 
-		// ½ÇÁúÀûÀ¸·Î »ç¿ëÇÒ ÄÁÅ×ÀÌ³Ê¿¡ ÀúÀå
+		// ì‹¤ì§ˆì ìœ¼ë¡œ ì‚¬ìš©í•  ì»¨í…Œì´ë„ˆì— ì €ì¥
 		PktLagStruct.PktLagCapsuleMap.Add(PktLagCapsule.Key, PktLagCT);
 
 	}
