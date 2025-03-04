@@ -11,6 +11,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class UCapsuleComponent;
 
 UCLASS()
 class SHOOT_API ABaseCharacter : public ACharacter
@@ -52,13 +53,58 @@ private:
 	class AShootingGameMode* GameMode;
 
 
-	// (패킷로스) 서버보상에 대응할 콜리전 박스
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* PktLagColisionBox;
+public:
+	// 모든 캡슐 충동 요소를 저장할 컨테이너 
+	UPROPERTY()
+	TMap<FName, UCapsuleComponent*> PktLagMappingComponent;
+
+private:
+	/*
+		머리
+	*/
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktLagHeadCapsule;
+
+	/*
+		몸통 
+	*/
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktLagBodyPelvis;
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktLagBodySpine_1;
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktLagBodySpine_2;
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktLagBodySpine_3;
+
+	/*
+		팔
+	*/
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktUpperArm_L;
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktLowerArm_L;
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktUpperArm_R;
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktLowerArm_R;
+
+	/*
+		다리
+	*/
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktUpperLag_L;
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktLowerLag_L;
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktUpperLag_R;
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* PktLowerLag_R;
 
 
-
-
+	// 패킷 랙에 대한 시간 계산에 필요한 컴포넌트
+	UPROPERTY(EditAnywhere)
+	class UPktLagComponent* PktLagComponent;
 
 
 

@@ -98,7 +98,7 @@ void AShootingGameMode::Tick(float DeltaSeconds)
 			UWorld* world = GetWorld();
 			if (world)
 			{
-				bUseSeamlessTravel = true;   // 이거 때문에 버그 남  우선 사용 중지
+				//bUseSeamlessTravel = true;   // 이거 때문에 버그 남  우선 사용 중지
 				world->ServerTravel(FString("/Game/Maps/ShootMap?Listen"));
 				//World'/Game/Maps/ShootMap.ShootMap'
 			}

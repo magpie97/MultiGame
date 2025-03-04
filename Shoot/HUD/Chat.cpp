@@ -51,6 +51,15 @@ void UChat::AddChatMessage(const FString& chat)
 	// 채팅의 맨 끝으로 
 	ChatHistory->ScrollToEnd();
 
+
+
+	/*
+		test 메모리 해제  
+	*/
+	NewText->ConditionalBeginDestroy();
+	NewText = nullptr;
+
+
 }
 
 void UChat::SetChatInputTextMessage(const FText& Text)

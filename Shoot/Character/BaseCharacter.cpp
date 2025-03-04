@@ -34,6 +34,7 @@
 #include "GameFramework/PlayerState.h"
 
 #include "Components/TextBlock.h"
+#include "Shoot/ShootComponent/PktLagComponent.h"
 
 
 
@@ -112,8 +113,85 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	GrenadeMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	
-	
 
+
+	/*
+		패킷손실로 인한 게임 랙 해결 방안
+		콜리전을 사용하여 패킷이 손실된 거리까지 콜리전 위치를 저장하고 최대한의 이득을 취한다
+	*/
+
+	// 이 컴포넌트는 현제 서버에서만 사용하기에 복사 할 필요 없다
+	PktLagComponent = CreateDefaultSubobject<UPktLagComponent>(TEXT("PktLagComponent"));
+
+	// 머리
+	PktLagHeadCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Head"));
+	PktLagHeadCapsule->SetupAttachment(GetMesh(), FName("head"));
+	PktLagHeadCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("head"), PktLagHeadCapsule);
+
+	// 척추
+	PktLagBodyPelvis = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Pelvis1"));
+	PktLagBodyPelvis->SetupAttachment(GetMesh(), FName("pelvis"));
+	PktLagBodyPelvis->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("pelvis"), PktLagBodyPelvis);
+
+	PktLagBodySpine_1 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Spine1"));
+	PktLagBodySpine_1->SetupAttachment(GetMesh(), FName("spine_01"));
+	PktLagBodySpine_1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("spine_01"), PktLagBodySpine_1);
+
+	PktLagBodySpine_2 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Spine2"));
+	PktLagBodySpine_2->SetupAttachment(GetMesh(), FName("spine_02"));
+	PktLagBodySpine_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("spine_02"), PktLagBodySpine_2);
+
+	PktLagBodySpine_3 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Spine3"));
+	PktLagBodySpine_3->SetupAttachment(GetMesh(), FName("spine_03"));
+	PktLagBodySpine_3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("spine_03"), PktLagBodySpine_3);
+
+	// 팔
+	PktUpperArm_L = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftUpperArm"));
+	PktUpperArm_L->SetupAttachment(GetMesh(), FName("upperarm_l"));
+	PktUpperArm_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("upperarm_l"), PktUpperArm_L);
+
+	PktLowerArm_L = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftLowerArm"));
+	PktLowerArm_L->SetupAttachment(GetMesh(), FName("lowerarm_l"));
+	PktLowerArm_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("lowerarm_l"), PktLowerArm_L);
+
+	PktUpperArm_R = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightUpperArm"));
+	PktUpperArm_R->SetupAttachment(GetMesh(), FName("upperarm_r"));
+	PktUpperArm_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("upperarm_r"), PktUpperArm_R);
+
+	PktLowerArm_R = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightLowerArm"));
+	PktLowerArm_R->SetupAttachment(GetMesh(), FName("lowerarm_r"));
+	PktLowerArm_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("lowerarm_r"), PktLowerArm_R);
+	
+	// 다리
+	PktUpperLag_L = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftCalf"));
+	PktUpperLag_L->SetupAttachment(GetMesh(), FName("calf_l"));
+	PktUpperLag_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("calf_l"), PktUpperLag_L);
+
+	PktLowerLag_L = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftFoot"));
+	PktLowerLag_L->SetupAttachment(GetMesh(), FName("foot_l"));
+	PktLowerLag_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("foot_l"), PktLowerLag_L);
+
+	PktUpperLag_R = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightCalf"));
+	PktUpperLag_R->SetupAttachment(GetMesh(), FName("calf_r"));
+	PktUpperLag_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("calf_r"), PktUpperLag_R);
+
+	PktLowerLag_R = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightFoot"));
+	PktLowerLag_R->SetupAttachment(GetMesh(), FName("foot_r"));
+	PktLowerLag_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PktLagMappingComponent.Add(FName("foot_r"), PktLowerLag_R);
+	
 }
 
 void ABaseCharacter::BeginPlay()
@@ -138,11 +216,6 @@ void ABaseCharacter::BeginPlay()
 		GrenadeMesh->SetVisibility(false);
 
 	}
-
-	// controller null check
-	//GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Red, FString::Printf(TEXT("PlayerController is %s"), Controller));
-
-
 }
 
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -166,8 +239,6 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(FName("ThrowGrenade"), IE_Pressed, this, &ABaseCharacter::GrenadeButtonPressed);
 	PlayerInputComponent->BindAction(FName("ThrowGrenade"), IE_Released, this, &ABaseCharacter::GrenadeButtonReleased);
 	
-	
-
 	// testsprint
 	/*PlayerInputComponent->BindAction(FName("Sprint"), IE_Pressed, this, &ABaseCharacter::OnStartSprint);
 	PlayerInputComponent->BindAction(FName("Sprint"), IE_Released, this, &ABaseCharacter::OnStopSprint);*/
@@ -182,11 +253,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	// Interaction Mapping
 	PlayerInputComponent->BindAction(FName("Equip"), IE_Pressed, this, &ABaseCharacter::EquipButtonPressed);
 
-
-
 }
-
-
 
 void ABaseCharacter::MoveForward(float Value)
 {
@@ -201,7 +268,6 @@ void ABaseCharacter::MoveForward(float Value)
 		AddMovementInput(Direction, Value);
 
 	}
-
 }
 
 void ABaseCharacter::MoveRight(float Value)
@@ -234,10 +300,7 @@ void ABaseCharacter::ReloadButtonPressed()
 	{
 		Combat->Reload();
 	}
-	
 }
-
-
 
 void ABaseCharacter::InfoButtonPressed()
 {
@@ -267,6 +330,15 @@ void ABaseCharacter::PostInitializeComponents()
 		// basecharacter의 클래스 주소를 가져오기
 		Combat->Character = this;
 	}
+
+	if (PktLagComponent)
+	{
+		PktLagComponent->Character = this;
+		if (Controller)
+		{
+			Controller = Cast<AShooterPlayerController>(Controller);
+		}
+	}
 }
 
 void ABaseCharacter::Tick(float DeltaTime)
@@ -292,16 +364,10 @@ void ABaseCharacter::Tick(float DeltaTime)
 		CalculateAO_Pitch();
 	}
 
-
-	
 	// 캐릭터가 공중에 있다면 rotator 값을 0으로 
 	GetCharacterMovement()->IsFalling() == true ? GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 0.f) : GetCharacterMovement()->RotationRate = FRotator(0.f, 800.f, 0.f);
 
-	
-
 }
-
-
 
 void ABaseCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
@@ -350,12 +416,6 @@ void ABaseCharacter::ServerEquipButtonPressed_Implementation()
 
 void ABaseCharacter::Jump()
 {
-	
-	//if (bSprint)  //test
-	//{
-	//	bPressedJump = false;
-	//}
-
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -365,7 +425,6 @@ void ABaseCharacter::Jump()
 		Super::Jump();
 
 	}
-
 }
 
 void ABaseCharacter::AttachDefaultWeapon()
@@ -383,10 +442,7 @@ void ABaseCharacter::AttachDefaultWeapon()
 		{
 			Combat->EquipWeapon(StartDefaultWeapon);
 		}
-
 	}
-
-
 }
 
 //void ABaseCharacter::CameraSwitch()
@@ -441,7 +497,6 @@ void ABaseCharacter::GrenadeButtonReleased()
 		//GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Blue, TEXT("GrenadeReleased"));
 		Combat->ThrowGrenade(true);
 	}
-
 }
 
 void ABaseCharacter::SimProxiesTurn()
@@ -468,8 +523,6 @@ void ABaseCharacter::SimProxiesTurn()
 	// 첫 번째 파라미터 - 두 번째 파라미터 의 값을 리턴
 	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotationCurrentFrame, ProxyRotationLastFrame).Yaw;
 
-	//UE_LOG(LogTemp, Warning, TEXT("Proxy Yaw : %f"), ProxyYaw);
-
 	// abs 해당 변수의 절대값을 리턴한다
 	if (FMath::Abs(ProxyYaw) > TurnThreshold)
 	{
@@ -491,10 +544,7 @@ void ABaseCharacter::SimProxiesTurn()
 	// 기본 상태
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 
-
 }
-
-
 
 void ABaseCharacter::CrouchButtonPressed()
 {
@@ -525,15 +575,10 @@ void ABaseCharacter::AimButtonReleased()
 	// // 위와 같은 이유로 변경해준다
 	if (Combat)
 	{
-		//float deltatime = GetWorld()->GetDeltaSeconds();
-
 		Combat->SetAiming(false);
-
 
 	}
 }
-
-
 
 ECombatState ABaseCharacter::GetCombatState() const
 {
@@ -635,7 +680,6 @@ void ABaseCharacter::AimOffset(float DeltaTime)
 
 	CalculateAO_Pitch();
 
-
 }
 
 void ABaseCharacter::CalculateAO_Pitch()
@@ -685,7 +729,6 @@ void ABaseCharacter::TurnInPlace(float DeltaTime)
 			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		}
 	}
-
 }
 
 void ABaseCharacter::OnRep_Health()
@@ -695,8 +738,6 @@ void ABaseCharacter::OnRep_Health()
 	PlayHitReactMontage();
 
 }
-
-
 
 void ABaseCharacter::PlayFireMontage(bool bAiming)
 {
@@ -709,8 +750,6 @@ void ABaseCharacter::PlayFireMontage(bool bAiming)
 		FName SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
-
-
 }
 
 void ABaseCharacter::PlayDeadMontage()
@@ -721,7 +760,6 @@ void ABaseCharacter::PlayDeadMontage()
 		AnimInstance->Montage_Play(DeadMontage);
 
 	}
-
 }
 
 void ABaseCharacter::OnRep_ReplicatedMovement()
@@ -744,8 +782,6 @@ void ABaseCharacter::PlayHitReactMontage()
 		FName SectionName("FromFront");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
-
-
 }
 
 void ABaseCharacter::PlayReloadMontage()
@@ -785,7 +821,6 @@ void ABaseCharacter::PlayThrowGrenadeHoldMontage()
 	{
 		AnimInstance->Montage_Play(ThrowGrenadeHoldMontage);
 
-
 	}
 }
 
@@ -796,7 +831,6 @@ void ABaseCharacter::PlayThrowGrenadeMontage()
 	{
 		AnimInstance->Montage_Play(ThrowGrenadeMontage);
 		
-
 	}
 }
 
@@ -869,8 +903,6 @@ void ABaseCharacter::MulticastDead_Implementation()
 
 	}
 
-	
-
 	if (ShooterPlayerController)
 	{
 		DisableInput(ShooterPlayerController);
@@ -882,7 +914,6 @@ void ABaseCharacter::MulticastDead_Implementation()
 		//	GetEquippedWeapon()->SetOwner(nullptr); // 죽어도 총을 쏠 수 있어서 혹시 오너 null test
 
 		//}
-
 	}
 
 	if (DeadSound)
@@ -899,9 +930,6 @@ void ABaseCharacter::MulticastDead_Implementation()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetSimulatePhysics(true);
 	GetCharacterMovement()->DisableMovement();// can't input w a s d Keys
-
-
-
 
 	//GetCharacterMovement()->StopMovementImmediately();	// can't input mouse rotation
 
@@ -937,7 +965,6 @@ void ABaseCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDa
 
 	PlayHitReactMontage();
 
-
 	// 게임모드  관련 코드
 	// 캐릭터가 죽으면 다시 리스폰 시키거나 게임 전체 스코어를 카운팅, 점수를 처리하기위해 작성함
 	if (CurrentHealth == 0.f)
@@ -961,7 +988,6 @@ void ABaseCharacter::UpdateHUDHealth()
 		ShooterPlayerController->SetHUDHealth(CurrentHealth, MaxHealth);
 
 	}
-
 }
 
 void ABaseCharacter::UpdateHUDWeaponAmmo()
@@ -973,7 +999,6 @@ void ABaseCharacter::UpdateHUDWeaponAmmo()
 	{
 		ShooterPlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
 		ShooterPlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
-
 
 	}
 }
@@ -989,7 +1014,6 @@ void ABaseCharacter::PollInit()
 			ShooterPlayerState->AddToScore(0.f);
 			ShooterPlayerState->AddToDeathScore(0);
 			
-
 		}
 	}
 
@@ -1001,9 +1025,6 @@ void ABaseCharacter::PollInit()
 			UpdateHUDWeaponAmmo();
 			AttachDefaultWeapon(); // test
 		}
-		
-
 	}
-
 }
 
