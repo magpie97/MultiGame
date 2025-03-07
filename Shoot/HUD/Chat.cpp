@@ -23,7 +23,6 @@ void UChat::NativeConstruct()
 
 	ChatInput->OnTextCommitted.AddDynamic(this, &UChat::OnChatTextCommitted);
 
-
 }
 
 void UChat::AddChatMessage(const FString& chat)
@@ -33,9 +32,6 @@ void UChat::AddChatMessage(const FString& chat)
 	//SetConsoleOutputCP(65001);
 	//setlocale(LC_ALL, "ko_KR.UTF-8");
 
-
-
-
 	// 기본 폰트를 가져와서 처리   폰트스타일을 안가져와서 강제로 초기화
 	FSlateFontInfo SlateFontInfo = FCoreStyle::Get().GetFontStyle("EmbossedText");
 	// 폰트 사이즈 
@@ -44,21 +40,17 @@ void UChat::AddChatMessage(const FString& chat)
 	NewText->SetFont(SlateFontInfo);
 	NewText->SetText(FText::FromString(*chat));
 
-
 	// newtext를 chatsystem에 자식 클래스로 넣기
 	ChatHistory->AddChild(NewText);
 
 	// 채팅의 맨 끝으로 
 	ChatHistory->ScrollToEnd();
 
-
-
 	/*
-		test 메모리 해제  
+		메모리 해제  
 	*/
 	NewText->ConditionalBeginDestroy();
 	NewText = nullptr;
-
 
 }
 
@@ -89,15 +81,11 @@ void UChat::OnChatTextCommitted(const FText& Text, ETextCommit::Type CommitMetho
 	FName GameStateWaitingToStart = "WaitingToStart";
 	FName GameStateInProgress = "InProgress";
 
-
-
 	switch (CommitMethod)
 	{
 	case ETextCommit::OnEnter:
 		if (Text.IsEmpty() == false)
 		{
-			
-
 			if (GameState->GetMatchState() == GameStateWaitingToStart)
 			{
 				// watingtostart 가 아니라면  입력 안되게 변경
@@ -145,10 +133,6 @@ void UChat::OnChatTextCommitted(const FText& Text, ETextCommit::Type CommitMetho
 
 				//InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseCursor::);
 
-				
-				
-
-
 				PlayerController->SendMessage(Text);
 				SetChatInputTextMessage(Text.GetEmpty());
 
@@ -158,8 +142,6 @@ void UChat::OnChatTextCommitted(const FText& Text, ETextCommit::Type CommitMetho
 			
 		}
 		
-
-
 		PlayerController->FocusGame();
 		//InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);  //test
 		break;

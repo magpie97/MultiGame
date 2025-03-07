@@ -13,8 +13,6 @@ TSharedPtr<class SWidget> UChatSystem::GetChatInputTextObject()
 
 void UChatSystem::AddChatMessage(const FString& message)
 {
-
-
 	WBP_Chat->AddChatMessage(*message);
 
 }

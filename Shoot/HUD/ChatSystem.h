@@ -20,8 +20,6 @@ private:
 	class UChat* WBP_Chat;
 
 
-
-
 public:
 	TSharedPtr<class SWidget> GetChatInputTextObject();
 	
