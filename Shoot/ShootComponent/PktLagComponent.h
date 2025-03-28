@@ -63,7 +63,14 @@ public:
 	UFUNCTION()
 	void PktLagDebugCapsule(FPktLagCapsuleTransformMap& PktLagStructMap, FColor Color);
 
+	// tick 마다 debug capsule 표시 할 함수
+	UFUNCTION()
+	void DebugServerRewide();
 
+	// server side rewinde  구현 함수
+	// 서버 되감기 기능
+	UFUNCTION()
+	void ServerSideRewinde(class ABaseCharacter* HitCharacter, FVector_NetQuantize& TraceStart, FVector_NetQuantize& TraceEnd, float HitTime);
 
 
 
@@ -92,6 +99,9 @@ private:
 	// 4초
 	UPROPERTY(EditAnywhere)
 	float MaxRecordTime = 4.f;
+
+	// 리스트의 중간 값을 얻기위한 작업  굳이 필요 없을 수 있다
+	FPktLagCapsuleTransformMap InterpBetweenFrames(FPktLagCapsuleTransformMap& OlderFrame, FPktLagCapsuleTransformMap& NewerFrame, float HitTime);
 
 
 

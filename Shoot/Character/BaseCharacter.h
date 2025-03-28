@@ -103,7 +103,7 @@ private:
 
 
 	// 패킷 랙에 대한 시간 계산에 필요한 컴포넌트
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	class UPktLagComponent* PktLagComponent;
 
 
@@ -284,6 +284,7 @@ public:
 	FORCEINLINE UStaticMeshComponent* GetGrenadeMesh() const { return GrenadeMesh; }
 	FORCEINLINE bool GetGrenadeHold() const { return bGrenadeHold; }
 	FORCEINLINE AShooterPlayerController* GetShooterPlayerController() const { return ShooterPlayerController; }
+	FORCEINLINE UPktLagComponent* GetPktLagComponent() const { return PktLagComponent; }
 	
 
 
