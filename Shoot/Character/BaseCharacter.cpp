@@ -12,6 +12,7 @@
 #include "Shoot/Weapon/Weapon.h"
 #include "Shoot/ShootComponent/CombatComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Animation/AnimMontage.h"
 #include "BaseAnimInstance.h"
@@ -34,7 +35,6 @@
 #include "GameFramework/PlayerState.h"
 
 #include "Components/TextBlock.h"
-#include "Shoot/ShootComponent/PktLagComponent.h"
 
 
 
@@ -121,76 +121,80 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	*/
 
 	// 이 컴포넌트는 현제 서버에서만 사용하기에 복사 할 필요 없다
-	PktLagComponent = CreateDefaultSubobject<UPktLagComponent>(TEXT("PktLagComponent"));
-
-	// 머리
-	PktLagHeadCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Head"));
-	PktLagHeadCapsule->SetupAttachment(GetMesh(), FName("head"));
-	PktLagHeadCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("head"), PktLagHeadCapsule);
-
-	// 척추
-	PktLagBodyPelvis = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Pelvis1"));
-	PktLagBodyPelvis->SetupAttachment(GetMesh(), FName("pelvis"));
-	PktLagBodyPelvis->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("pelvis"), PktLagBodyPelvis);
-
-	PktLagBodySpine_1 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Spine1"));
-	PktLagBodySpine_1->SetupAttachment(GetMesh(), FName("spine_01"));
-	PktLagBodySpine_1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("spine_01"), PktLagBodySpine_1);
-
-	PktLagBodySpine_2 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Spine2"));
-	PktLagBodySpine_2->SetupAttachment(GetMesh(), FName("spine_02"));
-	PktLagBodySpine_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("spine_02"), PktLagBodySpine_2);
-
-	PktLagBodySpine_3 = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Spine3"));
-	PktLagBodySpine_3->SetupAttachment(GetMesh(), FName("spine_03"));
-	PktLagBodySpine_3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("spine_03"), PktLagBodySpine_3);
-
-	// 팔
-	PktUpperArm_L = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftUpperArm"));
-	PktUpperArm_L->SetupAttachment(GetMesh(), FName("upperarm_l"));
-	PktUpperArm_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("upperarm_l"), PktUpperArm_L);
-
-	PktLowerArm_L = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftLowerArm"));
-	PktLowerArm_L->SetupAttachment(GetMesh(), FName("lowerarm_l"));
-	PktLowerArm_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("lowerarm_l"), PktLowerArm_L);
-
-	PktUpperArm_R = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightUpperArm"));
-	PktUpperArm_R->SetupAttachment(GetMesh(), FName("upperarm_r"));
-	PktUpperArm_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("upperarm_r"), PktUpperArm_R);
-
-	PktLowerArm_R = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightLowerArm"));
-	PktLowerArm_R->SetupAttachment(GetMesh(), FName("lowerarm_r"));
-	PktLowerArm_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("lowerarm_r"), PktLowerArm_R);
 	
-	// 다리
-	PktUpperLag_L = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftCalf"));
-	PktUpperLag_L->SetupAttachment(GetMesh(), FName("calf_l"));
-	PktUpperLag_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("calf_l"), PktUpperLag_L);
+	// 머리 부분
+	HitBoxHead = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxHead"));
+	HitBoxHead->SetupAttachment(GetMesh(), FName("head"));
+	HitBoxHead->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("head"), HitBoxHead);
 
-	PktLowerLag_L = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftFoot"));
-	PktLowerLag_L->SetupAttachment(GetMesh(), FName("foot_l"));
-	PktLowerLag_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("foot_l"), PktLowerLag_L);
+	// 척추 부분
+	HitBoxPelvis = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxPelvis"));
+	HitBoxPelvis->SetupAttachment(GetMesh(), FName("Pelvis"));
+	HitBoxPelvis->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("Pelvis"), HitBoxPelvis);
 
-	PktUpperLag_R = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightCalf"));
-	PktUpperLag_R->SetupAttachment(GetMesh(), FName("calf_r"));
-	PktUpperLag_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("calf_r"), PktUpperLag_R);
+	HitBoxSpine_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxSpine_1"));
+	HitBoxSpine_1->SetupAttachment(GetMesh(), FName("Spine_01"));
+	HitBoxSpine_1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("Spine_01"), HitBoxSpine_1);
 
-	PktLowerLag_R = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightFoot"));
-	PktLowerLag_R->SetupAttachment(GetMesh(), FName("foot_r"));
-	PktLowerLag_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	PktLagMappingComponent.Add(FName("foot_r"), PktLowerLag_R);
+	HitBoxSpine_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxSpine_2"));
+	HitBoxSpine_2->SetupAttachment(GetMesh(), FName("Spine_02"));
+	HitBoxSpine_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("Spine_02"), HitBoxSpine_2);
+
+	HitBoxSpine_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxSpine_3"));
+	HitBoxSpine_3->SetupAttachment(GetMesh(), FName("Spine_03"));
+	HitBoxSpine_3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("Spine_03"), HitBoxSpine_3);
+
+
+	// 팔 부분
+	HitBoxUpperArm_L = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxUpperArm_L"));
+	HitBoxUpperArm_L->SetupAttachment(GetMesh(), FName("upperarm_l"));
+	HitBoxUpperArm_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("upperarm_l"), HitBoxUpperArm_L);
+
+	HitBoxLowerArm_L = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxLowerArm_L"));
+	HitBoxLowerArm_L->SetupAttachment(GetMesh(), FName("lowerarm_l"));
+	HitBoxLowerArm_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("lowerarm_l"), HitBoxLowerArm_L);
+
+	HitBoxUpperArm_R = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxUpperArm_R"));
+	HitBoxUpperArm_R->SetupAttachment(GetMesh(), FName("upperarm_r"));
+	HitBoxUpperArm_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("upperarm_r"), HitBoxUpperArm_R);
+
+	HitBoxLowerArm_R = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxLowerArm_R"));
+	HitBoxLowerArm_R->SetupAttachment(GetMesh(), FName("lowerarm_r"));
+	HitBoxLowerArm_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("lowerarm_r"), HitBoxLowerArm_R);
+
+
+	// 다리 부분
+	HitBoxUpperLag_L = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxUpperLag_L"));
+	HitBoxUpperLag_L->SetupAttachment(GetMesh(), TEXT("thigh_l"));
+	HitBoxUpperLag_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("thigh.l"), HitBoxUpperLag_L);
+
+	HitBoxLowerLag_L = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxLowerLag_L"));
+	HitBoxLowerLag_L->SetupAttachment(GetMesh(), TEXT("calf_l"));
+	HitBoxLowerLag_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("calf_l"), HitBoxLowerLag_L);
+
+	HitBoxUpperLag_R = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxUpperLag_R"));
+	HitBoxUpperLag_R->SetupAttachment(GetMesh(), TEXT("thigh_r"));
+	HitBoxUpperLag_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("thigh_r"), HitBoxUpperLag_R);
+
+	HitBoxLowerLag_R = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxLowerLag_R"));
+	HitBoxLowerLag_R->SetupAttachment(GetMesh(), TEXT("calf_r"));
+	HitBoxLowerLag_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitBoxesMap.Add(TEXT("thigh_r"), HitBoxLowerLag_R);
+
+
+	
 	
 }
 
@@ -331,14 +335,7 @@ void ABaseCharacter::PostInitializeComponents()
 		Combat->Character = this;
 	}
 
-	if (PktLagComponent)
-	{
-		PktLagComponent->Character = this;
-		if (Controller)
-		{
-			Controller = Cast<AShooterPlayerController>(Controller);
-		}
-	}
+	
 }
 
 void ABaseCharacter::Tick(float DeltaTime)

@@ -11,7 +11,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-class UCapsuleComponent;
+class UBoxComponent;
 
 UCLASS()
 class SHOOT_API ABaseCharacter : public ACharacter
@@ -53,59 +53,55 @@ private:
 	class AShootingGameMode* GameMode;
 
 
-public:
-	// 모든 캡슐 충동 요소를 저장할 컨테이너 
-	UPROPERTY()
-	TMap<FName, UCapsuleComponent*> PktLagMappingComponent;
+
 
 private:
 	/*
 		머리
 	*/
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktLagHeadCapsule;
+	class UBoxComponent* HitBoxHead;
 
 	/*
 		몸통 
 	*/
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktLagBodyPelvis;
+	class UBoxComponent* HitBoxPelvis;
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktLagBodySpine_1;
+	class UBoxComponent* HitBoxSpine_1;
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktLagBodySpine_2;
+	class UBoxComponent* HitBoxSpine_2;
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktLagBodySpine_3;
+	class UBoxComponent* HitBoxSpine_3;
 
 	/*
 		팔
 	*/
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktUpperArm_L;
+	class UBoxComponent* HitBoxUpperArm_L;
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktLowerArm_L;
+	class UBoxComponent* HitBoxLowerArm_L;
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktUpperArm_R;
+	class UBoxComponent* HitBoxUpperArm_R;
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktLowerArm_R;
+	class UBoxComponent* HitBoxLowerArm_R;
 
 	/*
 		다리
 	*/
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktUpperLag_L;
+	class UBoxComponent* HitBoxUpperLag_L;
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktLowerLag_L;
+	class UBoxComponent* HitBoxLowerLag_L;
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktUpperLag_R;
+	class UBoxComponent* HitBoxUpperLag_R;
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* PktLowerLag_R;
+	class UBoxComponent* HitBoxLowerLag_R;
 
-
-	// 패킷 랙에 대한 시간 계산에 필요한 컴포넌트
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-	class UPktLagComponent* PktLagComponent;
-
+public:
+	// 모든 박스 콜리전 요소를 저장할 컨테이너 
+	UPROPERTY()
+	TMap<FName, UBoxComponent*> HitBoxesMap;
 
 
 
@@ -284,7 +280,7 @@ public:
 	FORCEINLINE UStaticMeshComponent* GetGrenadeMesh() const { return GrenadeMesh; }
 	FORCEINLINE bool GetGrenadeHold() const { return bGrenadeHold; }
 	FORCEINLINE AShooterPlayerController* GetShooterPlayerController() const { return ShooterPlayerController; }
-	FORCEINLINE UPktLagComponent* GetPktLagComponent() const { return PktLagComponent; }
+
 	
 
 
