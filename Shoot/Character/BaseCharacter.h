@@ -99,6 +99,7 @@ private:
 	class UBoxComponent* HitBoxLowerLag_R;
 
 public:
+
 	// 모든 박스 콜리전 요소를 저장할 컨테이너 
 	UPROPERTY()
 	TMap<FName, UBoxComponent*> HitBoxesMap;
