@@ -63,6 +63,8 @@ public:
 
 
 
+
+
 private:
 	UPROPERTY()
 	ABaseCharacter* Character;
@@ -70,14 +72,27 @@ private:
 	UPROPERTY()
 	class AShooterPlayerController* PlayerController;
 
+	// 프레임 당 캐릭터의 움직임의 시간을 저장할 컨테이너
+	TDoubleLinkedList<FServerSideRewindSnapshot> FrameHistory;
+
+	// framehistory의 최대 저장할 시간
+	UPROPERTY(EditAnywhere)
+	float MaxRewindTime = 3.f;
+
+	FServerSideRewindSnapshot ServerSideRewindSnapshot;
+
 
 public:
+
+	// 게임 시작 후 캐릭터 콜리전 박스의 위치, 회전, 크기 값을 저장 할 함수
 	UFUNCTION()
 	void SaveServerSideRewind(FServerSideRewindSnapshot& serversiderewindsnpshot);
 
-	// 이 함수는 deg 전용
+	// 이 함수는 SaveServerSideRewind debug  전용
 	UFUNCTION()
 	void DebugSSR(FServerSideRewindSnapshot& serversiderewindsnpshot);
+
+	
 
 
 		

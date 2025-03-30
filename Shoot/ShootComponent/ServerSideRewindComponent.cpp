@@ -18,9 +18,9 @@ void UServerSideRewindComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FServerSideRewindSnapshot ssr;
+	/*FServerSideRewindSnapshot ssr;
 	SaveServerSideRewind(ssr);
-	DebugSSR(ssr);
+	DebugSSR(ssr);*/
 	
 }
 
@@ -28,7 +28,41 @@ void UServerSideRewindComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+
+
+	// 요소 개수 비교
+	if (FrameHistory.Num() <= 1)
+	{
+		// 첫번째 요소에 info 저장 후 head 추가
+		SaveServerSideRewind(ServerSideRewindSnapshot);
+		FrameHistory.AddHead(ServerSideRewindSnapshot); //list
+
+	}
+	else
+	{
+		// 처음으로 저장된 시간 값과 끝 시간 값을 뺀 값을 초기화
+		float HistoryTime = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
+		
+		// 그 이상 저장한다면 불필요한 서버 처리를 하는것이며 최악의 상태 서버 지연이 400ms 이상이라면 굳이 처리할 필요 없다 (현재 테스트중인 지연 시간은 400이다)
+		while (HistoryTime > MaxRewindTime)
+		{
+			// head 와 tail의 시간 값이 3초 이상이라면  tail를 삭제하는 작업 
+			FrameHistory.RemoveNode(FrameHistory.GetTail());
+
+			// 삭제 후 새롭게 시간 초기화
+			HistoryTime = FrameHistory.GetHead()->GetValue().Time - FrameHistory.GetTail()->GetValue().Time;
+			
+		}
+
+		// 첫 요소가 3초 이상 상당의 요소값이 저장 됐다면 새롭게 다시 info 값 저장 후 head 추가
+		SaveServerSideRewind(ServerSideRewindSnapshot);
+		FrameHistory.AddHead(ServerSideRewindSnapshot);
+
+		// debug 
+		DebugSSR(ServerSideRewindSnapshot);
+	}
 	
+
 }
 
 void UServerSideRewindComponent::SaveServerSideRewind(FServerSideRewindSnapshot& serversiderewindsnpshot)
@@ -61,6 +95,6 @@ void UServerSideRewindComponent::DebugSSR(FServerSideRewindSnapshot& serversider
 {
 	for (auto& fill : serversiderewindsnpshot.HitBoxSnapshot)
 	{
-		DrawDebugBox(GetWorld(), fill.Value.Location, fill.Value.Extent, FQuat(fill.Value.Rotation), FColor::Orange, true);
+		DrawDebugBox(GetWorld(), fill.Value.Location, fill.Value.Extent, FQuat(fill.Value.Rotation), FColor::Orange, false, 2.f);
 	}
 }
