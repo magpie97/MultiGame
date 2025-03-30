@@ -100,9 +100,14 @@ private:
 
 public:
 
-	// 모든 박스 콜리전 요소를 저장할 컨테이너 
+	// 모든 박스 콜리전 요소를 저장할 컨테이너 (생성자에서 저장함)
 	UPROPERTY()
 	TMap<FName, UBoxComponent*> HitBoxesMap;
+
+	// 캐릭터의 액터 컴포넌트를 접근 하기 위해 만듬
+	UPROPERTY(VisibleAnywhere)
+	class UServerSideRewindComponent* ServerSideRewindComponent;
+
 
 
 
