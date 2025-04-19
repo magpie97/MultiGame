@@ -286,7 +286,7 @@ public:
 	FORCEINLINE UStaticMeshComponent* GetGrenadeMesh() const { return GrenadeMesh; }
 	FORCEINLINE bool GetGrenadeHold() const { return bGrenadeHold; }
 	FORCEINLINE AShooterPlayerController* GetShooterPlayerController() const { return ShooterPlayerController; }
-
+	FORCEINLINE UServerSideRewindComponent* GetServerSideRewindComponent() const { return ServerSideRewindComponent; }
 	
 
 

@@ -36,8 +36,6 @@ protected:
 
 
 
-public:
-
 
 
 private:
@@ -50,9 +48,6 @@ private:
 	class AProjectileGrenade* Grenade;
 
 
-
-
-
 public:
 
 	// 수류탄이 벽에 팅기거나 구를때 필요한 사운드
@@ -62,9 +57,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Speed = 0.f;
 
-
-
-
+	UPROPERTY(EditAnywhere)
+	float MaxSpeed = 300.f;
 
 
 

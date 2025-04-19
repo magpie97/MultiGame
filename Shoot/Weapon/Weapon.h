@@ -107,6 +107,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	EWeaponTypes WeaponTypes;
 
+	UPROPERTY(EditAnywhere, Category = Damage)
+	float Damage = 0.f;
+
 
 
 
@@ -237,6 +240,7 @@ public:
 
 	// 총알이 0개
 	bool IsEmpty();
+	FORCEINLINE float GetDamage() const { return Damage; }
 	FORCEINLINE EWeaponTypes GetWeaponTypes() const { return WeaponTypes; }
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }

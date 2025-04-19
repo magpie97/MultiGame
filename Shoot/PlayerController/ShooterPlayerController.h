@@ -129,7 +129,7 @@ public:
 
 
 	//서버,클라 시간 동기화 섹션
-public:
+private:
 
 	UPROPERTY()
 	class AShooterHUD* ShooterHUD;
@@ -168,8 +168,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "WidgetAnimation", Transient)
 	class UWidgetAnimation* CountdownAnimation;
 
-
-
+	
+	float SingleTripTime = 0;
 
 
 public:
@@ -222,42 +222,52 @@ private:
 	UPROPERTY()
 	bool bInitCharacterOverlay = false;
 
+
+
 	UPROPERTY()
 	float HUDCurrentHealth;
 	UPROPERTY()
 	bool bInitHUDCurrentHealth = false;
+
+
 
 	UPROPERTY()
 	float HUDMaxHealth;
 	UPROPERTY()
 	bool bInitHUDMaxHealth = false;
 
+
+
 	UPROPERTY()
 	float HUDKillScore;
 	UPROPERTY()
 	bool bInitHUDKillScore = false;
 
+
+
 	UPROPERTY()
 	int32 HUDDeathScore;
-
 	UPROPERTY()
 	bool bInitHUDDeadthScore = false;
 
+
+
 	UPROPERTY()
 	int32 HUDGrenade;
-
 	UPROPERTY()
 	bool bInitHUDGrenade = false;
 
+
+
 	UPROPERTY()
 	float HUDCarriedAmmo;
-
 	UPROPERTY()
 	bool bInitHUDCarriedAmmo = false;
 
+
+
 	UPROPERTY()
 	float HUDWeaponAmmo;
-
 	UPROPERTY()
 	bool bInitHUDWeaponAmmo = false;
 

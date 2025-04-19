@@ -271,16 +271,16 @@ public:
 
 	// 수류탄 개수
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_CarriedGrenade)
-	int32 CarriedGrenade = 4;
-
-	UPROPERTY(EditAnywhere)
-	int32 MaxCarriedGrenade = 4;
-
-	UFUNCTION()
-	bool IsGrenadeEmpty();
+	int32 CarriedGrenade = 10;
 
 	UFUNCTION()
 	void OnRep_CarriedGrenade();
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxCarriedGrenade = 3;
+
+	UFUNCTION()
+	bool IsGrenadeEmpty();
 
 	UFUNCTION()
 	void UpdateCarriedGrenade();

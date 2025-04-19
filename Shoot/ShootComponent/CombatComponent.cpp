@@ -621,6 +621,7 @@ void UCombatComponent::ThrowGrenadeHold(bool bGrenade)
 {
 	bCanThrowGrenade = bGrenade;
 
+	if (CarriedGrenade == 0) return;
 
 	if (Character == nullptr) return;
 	
@@ -678,7 +679,7 @@ void UCombatComponent::ThrowGrenade(bool bGrenade)
 	CombatState = ECombatState::ECS_ThrowGrenade;
 
 	bCanFire = true;
-
+	
 
 	if (Character)
 	{
@@ -687,17 +688,20 @@ void UCombatComponent::ThrowGrenade(bool bGrenade)
 		
 		
 	}
+
 	if (Character && !Character->HasAuthority())
 	{
 		ServerThrowGrenade();
 
 	}
+
 	if (Character && Character->HasAuthority())
 	{
 		CarriedGrenade = FMath::Clamp(CarriedGrenade - 1, 0, MaxCarriedGrenade);
 		UpdateCarriedGrenade();
 
 	}
+
 }
 
 void UCombatComponent::ServerThrowGrenade_Implementation()

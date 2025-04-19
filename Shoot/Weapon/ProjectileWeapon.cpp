@@ -10,7 +10,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
 
-	if (!HasAuthority()) return;	//권한 체크
+	//if (!HasAuthority()) return;	//권한 체크  임시 주석
 
 	APawn* InstigatorPawn = Cast<APawn>(GetOwner());
 

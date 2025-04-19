@@ -142,24 +142,27 @@ void AShooterPlayerController::PollInit()
 			CharacterOverlay = ShooterHUD->CharacterOverlay;
 			if (CharacterOverlay)
 			{
-				if (bInitHUDCurrentHealth) { SetHUDHealth(HUDCurrentHealth, HUDMaxHealth); }
-				if (bInitHUDKillScore) { SetHUDKillScore(HUDKillScore); }
-				if (bInitHUDDeadthScore) { SetHUDDeathScore(HUDDeathScore); }
-				if (bInitHUDCarriedAmmo) { SetHUDCarriedAmmo(HUDCarriedAmmo); }
-				if (bInitHUDWeaponAmmo) { SetHUDWeaponAmmo(HUDWeaponAmmo); }
-				
+			    if (bInitHUDCurrentHealth) { SetHUDHealth(HUDCurrentHealth, HUDMaxHealth); }
+				if (bInitHUDKillScore)     { SetHUDKillScore(HUDKillScore);                }
+				if (bInitHUDDeadthScore)   { SetHUDDeathScore(HUDDeathScore);              }
+				if (bInitHUDCarriedAmmo)   { SetHUDCarriedAmmo(HUDCarriedAmmo);            }
+				if (bInitHUDWeaponAmmo)    { SetHUDWeaponAmmo(HUDWeaponAmmo);              }
 
 				ABaseCharacter* BaseCharacter = Cast<ABaseCharacter>(GetPawn());
 				if (BaseCharacter && BaseCharacter->GetCombat())
 				{
 					SetHUDCarriedGrenade(BaseCharacter->GetCombat()->GetCarriedGrenade());
+
+
+					/*if (bInitHUDGrenade)
+					{
+						SetHUDCarriedGrenade(BaseCharacter->GetCombat()->GetCarriedGrenade());
+					}*/
+
 				}
-				
 			}
 		}
 	}
-
-	
 }
 
 void AShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
@@ -182,7 +185,7 @@ void AShooterPlayerController::SetHUDHealth(float Health, float MaxHealth)
 	}
 	else
 	{
-		bInitCharacterOverlay = true;
+		bInitHUDCurrentHealth = true;
 		HUDCurrentHealth = Health;
 		HUDMaxHealth = MaxHealth;
 	}
@@ -415,9 +418,14 @@ void AShooterPlayerController::CReportServerTime_Implementation(float TimeOfClie
 {
 	// 서버에서 클라로 클라에서 서버로 왕복한 시간 초기화
 
+
+
 	// 클라이언트 시간 - 120초 뺀 값을 초기화
 	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
-	float CurrentServerTime = TimeServerReceivedClientRequest + (0.5f * RoundTripTime);
+
+	SingleTripTime = 0.5 * RoundTripTime;
+
+	float CurrentServerTime = TimeServerReceivedClientRequest + SingleTripTime;
 
 	ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
 

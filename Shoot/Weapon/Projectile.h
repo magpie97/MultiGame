@@ -28,14 +28,14 @@ protected:
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	UPROPERTY(EditAnywhere, Category = Damage)
-	float Damage = 7.f;
+
 
 
 
 
 
 public:
+
 	UPROPERTY(EditAnywhere)
 	class ABaseCharacter* Character;
 
@@ -71,6 +71,35 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float SoundVolum;
+
+
+
+
+	//====== Server side rewind 섹션 ========
+
+	// 총알 데미지
+	UPROPERTY(EditAnywhere, Category = "Damage")
+	float Damage = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "ServerSideRewind")
+	bool bServerSideRewind = false;
+
+	// 시작 추적 위치
+	UPROPERTY()
+	FVector_NetQuantize TraceStart;		// 소수점을 포함하지 않는 벡터
+
+	// 속력
+	UPROPERTY()
+	FVector_NetQuantize100 InitVelocity;	// FVector_NetQuantize100 은 소수점 까지 사용하기 위한 벡터 이다
+
+	// 투사체 속도  (원래는 10000 정도 했는데 파티클이 따라가지 못하는 모습이 모여서 )
+	UPROPERTY(EditAnywhere)
+	float InitSpeed = 15000.f;
+
+	//====== Server side rewind 섹션 ========
+
+
+
 
 
 
@@ -112,6 +141,9 @@ public:
 	float DamageOuterRadius = 0.f;
 
 
+
+
+public:
 
 	UFUNCTION()
 	void BlowupTimeToGrenadeStart();

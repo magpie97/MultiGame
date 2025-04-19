@@ -41,7 +41,7 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	Super(ObjInit.SetDefaultSubobjectClass<UBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false; // default  true
 
 	bReplicates = true;
 
@@ -202,12 +202,17 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	UpdateHUDWeaponAmmo();
-	UpdateHUDHealth();
 
 	// 게임 시작시 기본 장착될 무기 설정
 	AttachDefaultWeapon();
-	//CameraSwitch();
+
+	UpdateHUDWeaponAmmo();
+
+	UpdateHUDHealth();
+
+
+
+	//PollInit();
 
 	// HasAuthority() 자신이 서버인지 확인 (서버라면 ture)
 	if (HasAuthority())
@@ -872,6 +877,7 @@ void ABaseCharacter::Dead()
 		{
 			Combat->EquippedWeapon->Destroy();
 			Combat->EquippedWeapon->GetWeaponMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			Combat->EquippedWeapon->GetWeaponMesh()->SetVisibility(true);
 		}
 		else
 		{
@@ -1007,6 +1013,8 @@ void ABaseCharacter::UpdateHUDWeaponAmmo()
 	{
 		ShooterPlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
 		ShooterPlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
+		//ShooterPlayerController->SetHUDCarriedGrenade(Combat->CarriedGrenade);  //test
+
 
 	}
 }
@@ -1030,8 +1038,10 @@ void ABaseCharacter::PollInit()
 		ShooterPlayerController = ShooterPlayerController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterPlayerController;
 		if(ShooterPlayerController)
 		{
-			UpdateHUDWeaponAmmo();
 			AttachDefaultWeapon(); // test
+			UpdateHUDWeaponAmmo();
+			
+			
 		}
 	}
 }

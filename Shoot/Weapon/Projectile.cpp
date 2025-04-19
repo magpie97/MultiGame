@@ -84,13 +84,16 @@ void AProjectile::BeginPlay()
 		);
 	}
 	
+	SpawnTrailSystem();
+
 	// 이 클래스가 네트워크 권한을 가지고 있는지 여부를 반환한다
 	if (HasAuthority())	// replicate = true
 	{
 		CollisionSphere->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 	}
 
-	
+
+
 }
 
 void AProjectile::Tick(float DeltaTime)

@@ -68,9 +68,8 @@ void AProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector&
 	{
 		FVector Velocity = this->GetVelocity();
 		Speed = Velocity.Size();
-		if (Speed > 300.f)
+		if (Speed > MaxSpeed) // 0 > 300.f
 		{
-
 			//UE_LOG(LogTemp, Warning, TEXT("Grenade Speed : %f"), Speed);
 			UGameplayStatics::PlaySoundAtLocation(this, BounceSound, GetActorLocation());
 
