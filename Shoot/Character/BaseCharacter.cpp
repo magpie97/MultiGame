@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "PhysicsEngine/PhysicalAnimationComponent.h"
+#include "Shoot/ShootComponent/PhysicalAnimation.h"
 #include "BaseCharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -41,7 +43,8 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	Super(ObjInit.SetDefaultSubobjectClass<UBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false; // default  true
+	PrimaryActorTick.bCanEverTick = true; // default  true
+	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	bReplicates = true;
 
@@ -117,7 +120,6 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	*/
 
 	// 이 컴포넌트는 현제 서버에서만 사용하기에 복사 할 필요 없다
-	
 	// 머리 부분
 	HitBoxHead = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxHead"));
 	HitBoxHead->SetupAttachment(GetMesh(), TEXT("head"));
@@ -193,9 +195,13 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	HitBoxLowerLag_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("calf_r"), HitBoxLowerLag_R);
 
-
+	// physical animation component
+	PhysicalAnimationComponent = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
 
 	
+
+
+
 	
 }
 
@@ -209,6 +215,17 @@ void ABaseCharacter::BeginPlay()
 	UpdateHUDWeaponAmmo();
 
 	UpdateHUDHealth();
+
+	
+	if (PhysicalAnimationComponent)
+	{
+		PhysicalAnimationComponent->SetSkeletalMeshComponent(GetMesh());
+		
+		GetMesh()->SetAllBodiesBelowSimulatePhysics(FName("pelvis"), true, false);
+
+	}
+	
+
 
 
 
@@ -257,11 +274,9 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(FName("Aim"), IE_Pressed, this, &ABaseCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction(FName("Aim"), IE_Released, this, &ABaseCharacter::AimButtonReleased);
 
-	// camera switching
-	//PlayerInputComponent->BindAction(FName("CameraSwitch"), IE_Pressed, this, &ABaseCharacter::CameraSwitch);		
-
 	// Interaction Mapping
 	PlayerInputComponent->BindAction(FName("Equip"), IE_Pressed, this, &ABaseCharacter::EquipButtonPressed);
+
 
 }
 
@@ -318,6 +333,19 @@ void ABaseCharacter::InfoButtonPressed()
 
 void ABaseCharacter::Info()
 {
+}
+
+void ABaseCharacter::PlayPhysicalAnimation()
+{
+	//todo : 피직컬 애니메이션 실행
+
+	//if (PhysicalAnimation)
+	//{
+	//	//PhysicalAnimation->
+
+
+	//}
+
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -976,6 +1004,12 @@ void ABaseCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDa
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
 
 	UpdateHUDHealth();
+
+
+	// todo 피직스 애니메이션 구현 필요  (총알 맞았을때) 
+
+
+
 
 	PlayHitReactMontage();
 

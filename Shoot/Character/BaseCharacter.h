@@ -53,6 +53,10 @@ private:
 	class AShootingGameMode* GameMode;
 
 
+public:
+	//UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	//class UPhysicalAnimation* PhysicalAnimation;
+
 
 
 private:
@@ -238,10 +242,19 @@ public:
 
 
 
+private:
+
+	// physical animation 섹션
+	UPROPERTY()
+	class UPhysicalAnimationComponent* PhysicalAnimationComponent;
+
+
+
+
+
+
 
 public:
-
-
 
 	UFUNCTION()
 	void PlayFireMontage(bool bAiming);
@@ -261,6 +274,7 @@ public:
 
 	UFUNCTION()
 	void PlayThrowGrenadeMontage();
+
 
 
 
@@ -287,6 +301,7 @@ public:
 	FORCEINLINE bool GetGrenadeHold() const { return bGrenadeHold; }
 	FORCEINLINE AShooterPlayerController* GetShooterPlayerController() const { return ShooterPlayerController; }
 	FORCEINLINE UServerSideRewindComponent* GetServerSideRewindComponent() const { return ServerSideRewindComponent; }
+	//FORCEINLINE UPhysicalAnimation* GetPhysicalAnimation() const { return PhysicalAnimation; }
 	
 
 
@@ -461,6 +476,13 @@ public:
 	void Info();
 
 
+
+
+public:
+
+	// hitreaction 섹션
+	UFUNCTION()
+	void PlayPhysicalAnimation();
 
 
 

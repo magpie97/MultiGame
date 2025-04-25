@@ -76,6 +76,10 @@ void AShooterPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// test
+	//PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bStartWithTickEnabled = true;
+
 	// 매치 타이머 함수
 	SetHUDTime();
 

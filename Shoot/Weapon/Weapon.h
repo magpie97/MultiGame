@@ -56,14 +56,12 @@ public:
 
 	// 총기 자동 발사
 
-// 다시 발사할 딜레이 변수
+	// 다시 발사할 딜레이 변수
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float FireDelay = 0.2f;			// default  0.2
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	bool bAutomatic = true;
-
-
 
 	// latency 에 대응할 enum
 	UPROPERTY(EditAnywhere)
@@ -122,6 +120,8 @@ public:
 	bool bDestroyDefaultWeapon = false;
 	
 
+	UPROPERTY(Replicated, EditAnywhere)
+	bool bUseServerSideRewind = false;
 
 
 
