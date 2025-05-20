@@ -26,7 +26,7 @@ protected:
 
 	// projectile destroy를 위한 함수     블루프린트에선 OnComponentHit 이라는 이름으로 사용된다 
 	UFUNCTION()
-	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	virtual void OnComponentHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 
 
@@ -81,8 +81,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Damage")
 	float Damage = 0.f;
 
-	UPROPERTY(EditAnywhere, Category = "ServerSideRewind")
-	bool bServerSideRewind = false;
+	//UPROPERTY(Replicated, EditAnywhere)
+	bool bUseServerSideRewind = false;
 
 	// 시작 추적 위치
 	UPROPERTY()
@@ -126,6 +126,9 @@ public:
 	float BlowupTimeToGrenade = 3.f;
 
 	UPROPERTY(EditAnywhere)
+	float DestoryProjectileTime = 3.f;
+
+	UPROPERTY(EditAnywhere)
 	float GrenadeDamage = 0.f;
 
 	UPROPERTY(EditAnywhere)
@@ -146,10 +149,10 @@ public:
 public:
 
 	UFUNCTION()
-	void BlowupTimeToGrenadeStart();
+	void DestoryProjectileStart();
 
 	UFUNCTION()
-	void BlowupTimeToGrenadeFinished();
+	void DestoryProjectileFinished();
 
 	UFUNCTION()
 	void ExplodeDamage();

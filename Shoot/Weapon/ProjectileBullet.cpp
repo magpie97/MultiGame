@@ -20,7 +20,7 @@ AProjectileBullet::AProjectileBullet()
 	ProjectileMovementComponent->SetIsReplicated(true);
 	ProjectileMovementComponent->InitialSpeed = InitSpeed;
 	ProjectileMovementComponent->MaxSpeed = InitSpeed;
-	//ProjectileMovementComponent->ProjectileGravityScale = 0.1;
+	ProjectileMovementComponent->ProjectileGravityScale = 0.1;
 	
 }
 
@@ -29,6 +29,7 @@ void AProjectileBullet::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 총알 궤적 표시  test
 	FPredictProjectilePathParams ProjectilePath;
 	FPredictProjectilePathResult ProjectileResult;
 	ProjectilePath.bTraceWithChannel = true;
@@ -41,13 +42,18 @@ void AProjectileBullet::BeginPlay()
 	ProjectilePath.SimFrequency = 10.f;
 	ProjectilePath.StartLocation = GetActorLocation();
 	ProjectilePath.TraceChannel = ECollisionChannel::ECC_Visibility;
+	ProjectilePath.OverrideGravityZ = 0.1f;
 	ProjectilePath.ActorsToIgnore.Add(this);
 
 	UGameplayStatics::PredictProjectilePath(this, ProjectilePath, ProjectileResult);
 
+	DestoryProjectileStart();
+
+
 }
 
-void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+// 투사체 콜리전 처리
+void AProjectileBullet::OnComponentHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	// 캐릭터가 총을 가지고 총은 투사체를 가지고 투사체의 데미지를 처리할 것인데
 	// 액터를 소유한 액터를 가져오는 것이 GetOwner 함수이다 따라서 최종적으로 가져와야할 포인터는 character의 포인터인 것이다
@@ -60,19 +66,12 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		AController* OwnerController = OwnerCharacter->Controller;
 		if (OwnerController)
 		{
-			
-
-			//SetAllBodiesBelowPhysicsBlendWeight()
-
-
-			//UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
 			UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
 			
-
 		}
 	}
 
-	Super::OnHit(HitComp, OtherActor,  OtherComp, NormalImpulse, Hit);
+	Super::OnComponentHit(HitComp, OtherActor,  OtherComp, NormalImpulse, Hit);
 
 }
 

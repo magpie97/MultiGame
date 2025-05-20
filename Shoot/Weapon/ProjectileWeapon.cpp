@@ -33,33 +33,50 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 		ActorSpawnParameters.Owner = GetOwner();
 		ActorSpawnParameters.Instigator = InstigatorPawn;
 
+
+		// 클라이언트에서 fire 함수 실행 투사체가 느리게 스폰되어 날아가는 상황 발생
+		// 서버를 통해서 복사되기 때문에 이상하게 보이는것이 정상 (패킷로스 400ms 임)
+		// 서버를 통해서 스폰시키기보단 클라이언트에서 즉각 스폰시켜 hit 판정을 조정하는것이 좋아보임
+		
+		AProjectile* SpawnProjectile = nullptr;
+
 		if (bUseServerSideRewind)
 		{
-			if (InstigatorPawn->HasAuthority()) // 본인이 서버인지 확인
+			if (InstigatorPawn->HasAuthority()) // 서버 ssr 사용
 			{
-				if (InstigatorPawn->IsLocallyControlled()) //본인이 클라이언트 인지 확인
+				// 현재 클라에선 inpact point에 두번 탄착하는것으로 보여짐 
+				if (InstigatorPawn->IsLocallyControlled()) //pawn으로 로컬로 부터 입력을 받는지 확인
 				{
-					World->SpawnActor<AProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
-
+					SpawnProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
+					SpawnProjectile->bUseServerSideRewind = false;
+					SpawnProjectile->Damage = Damage;
 
 				}
+				else
+				{
+					SpawnProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
+					SpawnProjectile->bUseServerSideRewind = false;
 
+				}
 			}
-
-
+			else   // 클라이언트 ssr 사용
+			{
+				SpawnProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
+				SpawnProjectile->bUseServerSideRewind = true;
+				SpawnProjectile->TraceStart = SocketTransform.GetLocation();
+				SpawnProjectile->InitVelocity = SpawnProjectile->GetActorForwardVector() * SpawnProjectile->InitSpeed;
+				SpawnProjectile->Damage = Damage;
+			}
 		}
 		else
 		{
+			if (InstigatorPawn->HasAuthority()) // 서버
+			{
+				SpawnProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
+				SpawnProjectile->bUseServerSideRewind = false;
+				SpawnProjectile->Damage = Damage;
 
+			}
 		}
-
-
-
-
-
-		World->SpawnActor<AProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
-
-
 	}
-
 }

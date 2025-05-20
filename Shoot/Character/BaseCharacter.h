@@ -54,8 +54,7 @@ private:
 
 
 public:
-	//UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-	//class UPhysicalAnimation* PhysicalAnimation;
+
 
 
 
@@ -245,8 +244,8 @@ public:
 private:
 
 	// physical animation 섹션
-	UPROPERTY()
-	class UPhysicalAnimationComponent* PhysicalAnimationComponent;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	//class UPhysicalAnimationComponent* PhysicalAnimationComponent;
 
 
 
@@ -301,7 +300,7 @@ public:
 	FORCEINLINE bool GetGrenadeHold() const { return bGrenadeHold; }
 	FORCEINLINE AShooterPlayerController* GetShooterPlayerController() const { return ShooterPlayerController; }
 	FORCEINLINE UServerSideRewindComponent* GetServerSideRewindComponent() const { return ServerSideRewindComponent; }
-	//FORCEINLINE UPhysicalAnimation* GetPhysicalAnimation() const { return PhysicalAnimation; }
+	
 	
 
 
@@ -379,7 +378,7 @@ protected:
 		Damage 처리 할 함수
 	*/
 	UFUNCTION()
-	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
+	void ApplyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
 	UFUNCTION()
 	void UpdateHUDHealth();

@@ -89,7 +89,7 @@ void AProjectile::BeginPlay()
 	// 이 클래스가 네트워크 권한을 가지고 있는지 여부를 반환한다
 	if (HasAuthority())	// replicate = true
 	{
-		CollisionSphere->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+		CollisionSphere->OnComponentHit.AddDynamic(this, &AProjectile::OnComponentHit);
 	}
 
 
@@ -104,7 +104,7 @@ void AProjectile::Tick(float DeltaTime)
 
 }
 
-void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AProjectile::OnComponentHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 
 	Destroy();
@@ -133,20 +133,16 @@ void AProjectile::SpawnTrailSystem()
 		TrailSystemComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(TrailSystem, GetRootComponent(), FName(""), GetActorLocation(), GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
 
 	}
+}
 
+void AProjectile::DestoryProjectileStart()
+{
+	GetWorldTimerManager().SetTimer(DestroyTimeHandle, this, &AProjectile::DestoryProjectileFinished, DestoryProjectileTime);
 
 }
 
-void AProjectile::BlowupTimeToGrenadeStart()
+void AProjectile::DestoryProjectileFinished()
 {
-	GetWorldTimerManager().SetTimer(DestroyTimeHandle, this, &AProjectile::BlowupTimeToGrenadeFinished, BlowupTimeToGrenade);
-
-}
-
-void AProjectile::BlowupTimeToGrenadeFinished()
-{
-
-
 	Destroy();
 }
 

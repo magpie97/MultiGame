@@ -88,6 +88,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class UAnimationAsset* FireAnimations;
 
+
+protected:
 	/*
 		조준하는 동안의 카메라의 fov 값을 위한 변수
 	*/

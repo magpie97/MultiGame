@@ -23,13 +23,14 @@ public:
 
 private:
 
-public:
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	class AWeapon* Weapon;
 
 
+
+
 protected:
-	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
+	virtual void OnComponentHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
 
 	virtual void BeginPlay() override;
 

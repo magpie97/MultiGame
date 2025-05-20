@@ -29,9 +29,31 @@ void AProjectileGrenade::BeginPlay()
 {
 	AActor::BeginPlay();
 
+	// test
+	/*FPredictProjectilePathParams ProjectilePath;
+	FPredictProjectilePathResult ProjectileResult;
+	ProjectilePath.bTraceWithChannel = true;
+	ProjectilePath.bTraceWithCollision = true;
+	ProjectilePath.DrawDebugTime = 3.f;
+	ProjectilePath.DrawDebugType = EDrawDebugTrace::ForDuration;
+	ProjectilePath.LaunchVelocity = GetActorForwardVector() * InitSpeed;
+	ProjectilePath.MaxSimTime = 7.f;
+	ProjectilePath.ProjectileRadius = 2.f;
+	ProjectilePath.SimFrequency = 10.f;
+	ProjectilePath.StartLocation = GetActorLocation();
+	ProjectilePath.TraceChannel = ECollisionChannel::ECC_Visibility;
+	ProjectilePath.OverrideGravityZ = 1.f;
+	ProjectilePath.ActorsToIgnore.Add(this);*/
+
+	// test
+	//ProjectilePath.bTraceComplex = true;
+
+	//UGameplayStatics::PredictProjectilePath(this, ProjectilePath, ProjectileResult);
+
+
 	SpawnTrailSystem();
 
-	BlowupTimeToGrenadeStart();
+	DestoryProjectileStart();
 
 
 	ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &AProjectileGrenade::OnBounce);
@@ -50,7 +72,7 @@ void AProjectileGrenade::Tick(float DeltaSeconds)
 
 
 
-void AProjectileGrenade::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AProjectileGrenade::OnComponentHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	//if (OtherActor == GetOwner()) return;
 

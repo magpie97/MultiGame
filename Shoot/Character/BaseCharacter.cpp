@@ -126,7 +126,6 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	HitBoxHead->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("head"), HitBoxHead);
 
-
 	// 몸통 부분
 	HitBoxPelvis = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxPelvis"));
 	HitBoxPelvis->SetupAttachment(GetMesh(), TEXT("pelvis"));
@@ -148,8 +147,6 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	HitBoxSpine_3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("spine_03"), HitBoxSpine_3);
 
-
-
 	// 팔 부분
 	HitBoxUpperArm_L = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxUpperArm_L"));
 	HitBoxUpperArm_L->SetupAttachment(GetMesh(), TEXT("upperarm_l"));
@@ -170,9 +167,6 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	HitBoxLowerArm_R->SetupAttachment(GetMesh(), TEXT("lowerarm_r"));
 	HitBoxLowerArm_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("lowerarm_r"), HitBoxLowerArm_R);
-
-
-
 
 	// 다리 부분
 	HitBoxUpperLag_L = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxUpperLag_L"));
@@ -196,7 +190,7 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	HitBoxesMap.Add(FName("calf_r"), HitBoxLowerLag_R);
 
 	// physical animation component
-	PhysicalAnimationComponent = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
+	//PhysicalAnimationComponent = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
 
 	
 
@@ -217,24 +211,22 @@ void ABaseCharacter::BeginPlay()
 	UpdateHUDHealth();
 
 	
-	if (PhysicalAnimationComponent)
+	/*if (PhysicalAnimationComponent)
 	{
 		PhysicalAnimationComponent->SetSkeletalMeshComponent(GetMesh());
 		
 		GetMesh()->SetAllBodiesBelowSimulatePhysics(FName("pelvis"), true, false);
 
-	}
+	}*/
 	
-
-
 
 
 	//PollInit();
 
-	// HasAuthority() 자신이 서버인지 확인 (서버라면 ture)
+	// 서버확인
 	if (HasAuthority())
 	{
-		OnTakeAnyDamage.AddDynamic(this, &ABaseCharacter::ReceiveDamage);
+		OnTakeAnyDamage.AddDynamic(this, &ABaseCharacter::ApplyDamage);
 
 	}
 
@@ -993,7 +985,7 @@ void ABaseCharacter::DeadTimerFinished()
 	}
 }
 
-void ABaseCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
+void ABaseCharacter::ApplyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
 	// 게임 실행중 게임모드의 포인터를 가져올때 GetAuthGameMode 함수를 사용
 // 멀티 게임에서 게임모드는 게임을 관리하는 관리자 역활하여 게임에서 중요한 데이터를 인증하는 권한을 가진다
@@ -1005,10 +997,7 @@ void ABaseCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDa
 
 	UpdateHUDHealth();
 
-
 	// todo 피직스 애니메이션 구현 필요  (총알 맞았을때) 
-
-
 
 
 	PlayHitReactMontage();

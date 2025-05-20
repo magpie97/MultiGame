@@ -39,6 +39,7 @@ void AShooterPlayerController::BeginPlay()
 
 	//UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
+	// 게임 시작 후 채팅 하기전 마우스 포인터 끄기
 	SetShowMouseCursor(false);
 	SetInputMode(FInputModeGameOnly());
 
@@ -607,25 +608,25 @@ void AShooterPlayerController::FocusChatInputText()
 
 	// 입력 할 위젯과 플레이어 컨트롤러의 컨트롤을 변경가능한 구조체
 	FInputModeUIOnly InputModeUIOnly;
-	FInputModeGameAndUI InputModeGameAndUI;
-	FInputModeGameOnly InputModeGameOnly;
 
-	
-	//사용중인 함수
-	InputModeUIOnly.SetWidgetToFocus(HUD->GetChatInputTextObject());
+	//enter 키 입력하면 위젯의 포커스를 변경 
+	InputModeUIOnly.SetWidgetToFocus(HUD->GetChatInputTextObject()); //default InputModeUIOnly
+	InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::LockOnCapture);
+
+
 	SetInputMode(InputModeUIOnly);
 	
-
-	/*InputModeGameOnly.SetConsumeCaptureMouseDown(true);
-	ChatSystem->bIsFocusable = true;*/
-	//SetInputMode(InputModeUIOnly);
-
+	FViewport* Viewport = GetWorld()->GetGameViewport()->Viewport;
+	if (Viewport)
+	{
+		Viewport->LockMouseToViewport(true);
+		Viewport->CaptureMouse(true);
+	}
 }
 
 void AShooterPlayerController::FocusGame()
 {
 	SetInputMode(FInputModeGameOnly());  
-	//SetInputMode(FInputModeGameAndUI());
 	
 }
 
@@ -655,5 +656,4 @@ void AShooterPlayerController::ServerToClientSendMessage_Implementation(const FS
 
 	hud->AddChatMessage(*Message);  // dereference  test
 	
-
 }

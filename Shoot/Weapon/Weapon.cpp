@@ -252,15 +252,8 @@ void AWeapon::Fire(const FVector& HitTarget)
 		
 	}
 
-	/*if (HasAuthority())  // 실 사용 코드
-	{
-		SpendRound();
-	}*/
-
 	// 지연시간에 대응할 조치  
-	SpendRound();
-	
-
+	SpendRound();  // 우선 임시 주석 위 코드 는  test
 	
 
 }

@@ -21,8 +21,14 @@ void UChat::NativeConstruct()
 	// 기본 폰트를 가져오는 파인더
 	//static ConstructorHelpers::FObjectFinder<UFont> RobotoFontObj(*UWidget::GetDefaultFontName());
 
-	ChatInput->OnTextCommitted.AddDynamic(this, &UChat::OnChatTextCommitted);
+	//test
+	//bIsFocusable = true;
 
+	if (ChatInput)
+	{
+		ChatInput->OnTextCommitted.AddDynamic(this, &UChat::OnChatTextCommitted);
+	}
+	
 }
 
 void UChat::AddChatMessage(const FString& chat)
@@ -33,9 +39,10 @@ void UChat::AddChatMessage(const FString& chat)
 	//setlocale(LC_ALL, "ko_KR.UTF-8");
 
 	// 기본 폰트를 가져와서 처리   폰트스타일을 안가져와서 강제로 초기화
-	FSlateFontInfo SlateFontInfo = FCoreStyle::Get().GetFontStyle("EmbossedText");
+	//FSlateFontInfo SlateFontInfo = FCoreStyle::Get().GetFontStyle("EmbossedText");  임시 주석
+	FSlateFontInfo SlateFontInfo = FCoreStyle::Get().GetFontStyle("NanumGothic_Font");		// test
 	// 폰트 사이즈 
-	SlateFontInfo.Size = 12;
+	SlateFontInfo.Size = 15;
 	// 폰트 사이즈 및 설정 초기화
 	NewText->SetFont(SlateFontInfo);
 	NewText->SetText(FText::FromString(*chat));
@@ -75,8 +82,7 @@ void UChat::OnChatTextCommitted(const FText& Text, ETextCommit::Type CommitMetho
 
 	class AShooterGameState* GameState = GetWorld() != nullptr ? World->GetGameState<AShooterGameState>() : nullptr;
 
-	FInputModeUIOnly InputModeUIOnly;
-	FInputModeGameAndUI InputModeGameAndUI;
+
 
 	FName GameStateWaitingToStart = "WaitingToStart";
 	FName GameStateInProgress = "InProgress";
@@ -90,6 +96,9 @@ void UChat::OnChatTextCommitted(const FText& Text, ETextCommit::Type CommitMetho
 			{
 				// watingtostart 가 아니라면  입력 안되게 변경
 				SetChatInputTextMessage(Text.GetEmpty());
+				
+				//test
+				bIsFocusable = true;
 
 				PlayerController->FocusGame();
 				break;
@@ -97,48 +106,17 @@ void UChat::OnChatTextCommitted(const FText& Text, ETextCommit::Type CommitMetho
 			}
 			else if(GameState->GetMatchState() == GameStateInProgress)
 			{
-				// ===========   test
-				//this->bIsFocusable = true; // test
-				////InputModeData.SetWidgetToFocus(this->TakeWidget());
-				//InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::LockOnCapture);
-				//PlayerController->SetInputMode(InputModeData);
-				//PlayerController->bShowMouseCursor = false;
-				//============    test
+				PlayerController->SendMessage(Text);
 
-				//UGameplayStatics::SetViewportMouseCaptureMode(GetWorld()->GetFirstPlayerController(), EMouseCaptureMode::CaptureDuringMouseDown);
-				//UGameplayStatics::SetViewportMouseCaptureMode(GetWorld()->GetFirstPlayerController(), EMouseCaptureMode::NoCapture);
-				//UGameplayStatics::SetViewportMouseCaptureMode(GetWorld()->GetFirstPlayerController(), EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown);
-				
-				//PlayerController->SetIgnoreLookInput(true);
-				//PlayerController->bShowMouseCursor = false;
-
-
-				//InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::LockInFullscreen);
-				////InputModeData.SetWidgetToFocus(this->TakeWidget());
-				//PlayerController->SetInputMode(InputModeData);
-				//PlayerController->SetShowMouseCursor(false);
-				//bIsFocusable = true;
-
-				//PlayerController->SetInputMode(FInputModeGameAndUI());
-
-
-
-				//InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::LockInFullscreen);
-				//InputModeGameAndUI.SetHideCursorDuringCapture(true);
-
-				//PlayerController->DisableInput(PlayerController);
-				//PlayerController->SetInputMode(InputModeGameAndUI);
-				//PlayerController->SetShowMouseCursor(false);
+				//test
 				bIsFocusable = true;
 
-				//InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseCursor::);
-
-				PlayerController->SendMessage(Text);
 				SetChatInputTextMessage(Text.GetEmpty());
 
+				PlayerController->FocusGame();
+
+				break;
 			}
-			//test
-			//PlayerController->ResetIgnoreLookInput();
 			
 		}
 		
