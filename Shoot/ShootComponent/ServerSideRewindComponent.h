@@ -37,9 +37,13 @@ struct FServerSideRewindSnapshot
 	UPROPERTY()
 	float Time;
 
+	UPROPERTY()
+	ABaseCharacter* Character;
+
 	// 콜리전 박스 위치, 회전, 크기를 저장 할 컨테이너
 	UPROPERTY()
 	TMap<FName, FHitBoxInfo> HitBoxSnapshot;
+
 
 };
 
@@ -47,6 +51,10 @@ USTRUCT(BlueprintType)
 struct FServerSideRewindResult
 {
 	GENERATED_BODY()
+
+	// 맞았는지 체크
+	UPROPERTY()
+	bool bCheckHit;
 
 	// 머리 확인
 	UPROPERTY()
@@ -56,12 +64,6 @@ struct FServerSideRewindResult
 	//UPROPERTY()
 	//bool bHitBody;
 
-	// 맞았는지 체크
-	UPROPERTY()
-	bool bCheckHit;
-
-
-	
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -98,7 +100,7 @@ private:
 
 	// framehistory의 최대 저장할 시간
 	UPROPERTY(EditAnywhere)
-	float MaxRewindTime = 3.f;
+	float MaxRewindTime = 4.f;
 
 public:
 	// 데미지 처리가 되었는지 확인 하기 위한 변수( info 저장된 구조체임)
@@ -117,15 +119,18 @@ public:
 	UFUNCTION()
 	void DebugSSR(FServerSideRewindSnapshot& serversiderewindsnpshot);
 
-	// 저장된 캐릭터 info에 캐릭터가 hit 했을때 
-	// hit 위치에 rewind를 진행 하여 3초 이전에 이벤트 발생시 데미지를 적용할지 말지 판단 할 함수
-	UFUNCTION()
-	FServerSideRewindResult ServerSideRewind(ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime);
+	// 투사체 전용
+	FServerSideRewindResult ProjectileServerSideRewind(ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime);
 
-	// hit 했을 경우 콜리전을 rewind 하기 위한 함수
-	UFUNCTION()
-	FServerSideRewindResult CheckHitBody(FServerSideRewindSnapshot& SSRS, ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation);
-	
+	// 투사체 전용
+	FServerSideRewindResult CheckProjectileHitBody(FServerSideRewindSnapshot& SSRS, ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime);
+
+
+
+
+
+
+
 	// hit 위치 저장  save location
 	UFUNCTION()
 	void SaveTempBoxLocation(ABaseCharacter* HitCharacter, FServerSideRewindSnapshot& SSRS);
@@ -142,12 +147,13 @@ public:
 	UFUNCTION()
 	void EnableChracterMeshCollision(ABaseCharacter* HitCharacter, ECollisionEnabled::Type Collision);
 
-	// 서버에 먼저 데미지 처리
+	// 서버에 먼저 데미지 처리 투사체
 	UFUNCTION(Server, Reliable)
-	void ServerDamageRequest(ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime, AWeapon* Damage);
+	void ServerProjectileDamageRequest(ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime);
 
 	// 스냅샷 info 저장 (call tick func)
 	UFUNCTION()
 	void SaveSnapshot();
 
+	FServerSideRewindSnapshot GetFrameToCheck(ABaseCharacter* HitCharacter, float HitTime);
 };

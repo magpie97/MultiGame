@@ -168,7 +168,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "WidgetAnimation", Transient)
 	class UWidgetAnimation* CountdownAnimation;
 
-	
+public:
 	float SingleTripTime = 0;
 
 

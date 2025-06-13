@@ -8,6 +8,8 @@
 #include "Shoot/Weapon/Weapon.h"
 
 #include "DrawDebugHelpers.h"
+#include "Shoot/Shoot.h"
+#include "Templates/Tuple.h"
 
 
 
@@ -15,7 +17,6 @@ UServerSideRewindComponent::UServerSideRewindComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	
 }
 
 void UServerSideRewindComponent::BeginPlay()
@@ -26,19 +27,9 @@ void UServerSideRewindComponent::BeginPlay()
 	SaveServerSideRewind(ssr);
 	DebugSSR(ssr);*/
 
-
-	
 }
 
-void UServerSideRewindComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// info 저장 3초후 삭제 
-	SaveSnapshot();
-	
-
-}
 
 void UServerSideRewindComponent::SaveHitBoxInfo(FServerSideRewindSnapshot& serversiderewindsnpshot)
 {
@@ -49,6 +40,7 @@ void UServerSideRewindComponent::SaveHitBoxInfo(FServerSideRewindSnapshot& serve
 	{
 		// 게임 시작 후 월드 시간 가져와서 초기화 진행 (기본 게임 모드에 캐릭터 스폰 시작 하기 6초로 설정되어 있어서 디버그 진행해도 문제 없음)
 		serversiderewindsnpshot.Time = GetWorld()->GetTimeSeconds();
+		serversiderewindsnpshot.Character = Character;
 
 		// 게임 시작 후 캐릭터 스폰 후 생성자에서 저장된 콜리전 박스 컨테이너 각각의 요소 값을 저장
 		for (auto& fill : Character->HitBoxesMap)
@@ -74,19 +66,43 @@ void UServerSideRewindComponent::DebugSSR(FServerSideRewindSnapshot& serversider
 	}
 }
 
-FServerSideRewindResult UServerSideRewindComponent::ServerSideRewind(ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime)
+
+
+FServerSideRewindResult UServerSideRewindComponent::ProjectileServerSideRewind(ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime)
 {
-	HitCharacter = Character == nullptr ? Cast<ABaseCharacter>(GetOwner()) : Character;
+	FServerSideRewindSnapshot SnapshotCheck = GetFrameToCheck(HitCharacter, HitTime);
+
+	return CheckProjectileHitBody(SnapshotCheck, HitCharacter, TraceStart, InitialVelocity, HitTime); // 문제
+}
+
+FServerSideRewindSnapshot UServerSideRewindComponent::GetFrameToCheck(ABaseCharacter* HitCharacter, float HitTime)
+{
+	bool bNullCheck = HitCharacter == nullptr || HitCharacter->GetServerSideRewindComponent() || HitCharacter->GetServerSideRewindComponent()->FrameHistory.GetHead() == nullptr || HitCharacter->GetServerSideRewindComponent()->FrameHistory.GetTail() == nullptr;
+
 	FServerSideRewindSnapshot ServerSideRewindSnapshot;
 
-	bool bNullCheck = HitCharacter->GetServerSideRewindComponent()->FrameHistory.GetHead() == nullptr || HitCharacter->GetServerSideRewindComponent()->FrameHistory.GetTail() == nullptr;
+	if (bNullCheck) return FServerSideRewindSnapshot();
 
-	if (bNullCheck) return FServerSideRewindResult();
 	TDoubleLinkedList<FServerSideRewindSnapshot>& History = HitCharacter->GetServerSideRewindComponent()->FrameHistory;
 
-	float OldTime = History.GetTail()->GetValue().Time;
-	float NewTime = History.GetHead()->GetValue().Time;
-	
+	const float OldTime = History.GetTail()->GetValue().Time;
+	const float NewTime = History.GetHead()->GetValue().Time;
+
+	if (OldTime > HitTime)
+	{
+		return FServerSideRewindSnapshot();
+	}
+
+	if (OldTime == HitTime)
+	{
+		ServerSideRewindSnapshot = History.GetTail()->GetValue();
+	}
+
+	if (NewTime <= HitTime)
+	{
+		ServerSideRewindSnapshot = History.GetHead()->GetValue();
+	}
+
 	// 중요 핵심 코드--------------------------
 	auto NextNode = History.GetHead();
 	auto PrevNode = NextNode;
@@ -99,9 +115,8 @@ FServerSideRewindResult UServerSideRewindComponent::ServerSideRewind(ABaseCharac
 
 		if (PrevNode->GetValue().Time > HitTime)
 		{
-			PrevNode = NextNode;
+			NextNode = PrevNode;
 		}
-
 	}
 	// --------------------------
 
@@ -111,96 +126,131 @@ FServerSideRewindResult UServerSideRewindComponent::ServerSideRewind(ABaseCharac
 	UE_LOG(LogTemp, Warning, TEXT("Latest: %f"), NewTime);
 	UE_LOG(LogTemp, Warning, TEXT("Hit: %f"), HitTime);
 
+	if (PrevNode->GetValue().Time == HitTime)
+	{
+		ServerSideRewindSnapshot = PrevNode->GetValue();
+	}
 
-
-	// 예외 처리 코드 ----------------------
+	// 예외 처리 코드 ----------------------  임시 주석 test
 	// 3(지연 300ms)초를 넘겼으니 불 필요한 지연 보상에 제외 (현재 테스트 환경은 400ms)
-	if (OldTime > HitTime) { return FServerSideRewindResult(); }
+	//if (OldTime > HitTime) { return FServerSideRewindResult(); }
 
 	// 말도 안되는 상황이지만 혹시 모르는 상황에 대비하여 작성  (데미지 처리 할 시간보다 앞선 시간에 info 저장된다는게 말이 안되긴 하다)
-	if (NewTime <= HitTime) { ServerSideRewindSnapshot = History.GetHead()->GetValue(); }
-	if (OldTime <= HitTime) { ServerSideRewindSnapshot = History.GetTail()->GetValue(); }
-	if (PrevNode->GetValue().Time == HitTime){ ServerSideRewindSnapshot = PrevNode->GetValue(); }
+	//if (NewTime <= HitTime) { ServerSideRewindSnapshot = History.GetHead()->GetValue(); }
+	//if (OldTime <= HitTime) { ServerSideRewindSnapshot = History.GetTail()->GetValue(); }
+	//if (PrevNode->GetValue().Time == HitTime){ ServerSideRewindSnapshot = PrevNode->GetValue(); }
 	// -----------------------------------
 
-	if (bNullCheck)
+	// 임시 주석
+	/*if (bNullCheck)
 	{
 		return FServerSideRewindResult();
-	}
-	
+	}*/
 
-	return CheckHitBody(ServerSideRewindSnapshot, HitCharacter, TraceStart, HitLocation);
+	ServerSideRewindSnapshot.Character = HitCharacter;
+
+	return ServerSideRewindSnapshot;
 }
 
-FServerSideRewindResult UServerSideRewindComponent::CheckHitBody(FServerSideRewindSnapshot& SSRS, ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation)
+FServerSideRewindResult UServerSideRewindComponent::CheckProjectileHitBody(FServerSideRewindSnapshot& SSRS, ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime)
 {
-	if(HitCharacter == nullptr) return FServerSideRewindResult();
-
 	FServerSideRewindSnapshot ServerSideRewindSnapshot;
 	// 임시로 hit 한 위치를 저장 
 	SaveTempBoxLocation(HitCharacter, ServerSideRewindSnapshot);    // 임시로 hit 위치 저장
 	MoveTempBoxLocation(HitCharacter, SSRS);						// 임시로 저장한 위치에 콜리전 박스 위치, 크기를 옮겨서 저장 
-	EnableChracterMeshCollision(HitCharacter, ECollisionEnabled::NoCollision);
+	EnableChracterMeshCollision(HitCharacter, ECollisionEnabled::NoCollision); // 문제
 
 	// 기존 박스의 콜리전을 no collision에서 block 으로 변경 
-	UBoxComponent* boxcomponent = HitCharacter->HitBoxesMap[FName("head")];
+	class UBoxComponent* boxcomponent = HitCharacter->HitBoxesMap[FName("head")];
 	boxcomponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	boxcomponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	boxcomponent->SetCollisionResponseToChannel(ECC_HitBox, ECollisionResponse::ECR_Block);
 
+	// todo: projectile 궤적 생성
+	FPredictProjectilePathParams PathParams;
+	PathParams.bTraceWithCollision = true;
+	PathParams.MaxSimTime = MaxRewindTime;
+	PathParams.LaunchVelocity = InitialVelocity;
+	PathParams.StartLocation = TraceStart;
+	PathParams.SimFrequency = 15.f;
+	PathParams.ProjectileRadius = 5.f;
+	PathParams.TraceChannel = ECC_HitBox;
+	PathParams.ActorsToIgnore.Add(GetOwner());
+	PathParams.DrawDebugTime = 5.f;
+	PathParams.DrawDebugType = EDrawDebugTrace::ForDuration;
 
-	// linetrace 섹션
-	FHitResult hitresult;
-	FVector TraceEnd = TraceStart + (HitLocation - TraceStart) * 1.25f;
+	FPredictProjectilePathResult PathResult;
+	UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);
+	
 
-	UWorld* world = GetWorld();
-	if (world)
+	FHitResult HitResult;
+	if (PathResult.HitResult.bBlockingHit)
 	{
-		world->LineTraceSingleByChannel(hitresult, TraceStart, TraceEnd, ECollisionChannel::ECC_PhysicsBody);
-		
-		if (hitresult.bBlockingHit)
+		if (PathResult.HitResult.Component.IsValid())
 		{
+			UBoxComponent* Box = Cast<UBoxComponent>(PathResult.HitResult.Component);
+			if (Box)
+			{
+				DrawDebugBox(GetWorld(), Box->GetComponentLocation(), Box->GetScaledBoxExtent(), FQuat(Box->GetComponentRotation()), FColor::Red, false, 15.f);
+
+			}
+		}
+
+		// 콜리전 상태를 no collision 상태로 변경 
+		ResetBoxLocation(HitCharacter, ServerSideRewindSnapshot);
+
+		EnableChracterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
+
+		// chek, Hit 순서
+		return FServerSideRewindResult{ true, true };
+
+	}
+	else
+	{
+		// head 소켓의 콜리전이 작동 안한다면 
+		for (auto& snapshots : HitCharacter->HitBoxesMap)
+		{
+			if (snapshots.Value != nullptr)
+			{
+				snapshots.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				snapshots.Value->SetCollisionResponseToChannel(ECC_HitBox, ECollisionResponse::ECR_Block);
+
+			}
+		}
+
+		UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);
+
+		if (PathResult.HitResult.bBlockingHit)
+		{
+			// debug
+			if (PathResult.HitResult.Component.IsValid())
+			{
+				UBoxComponent* Box = Cast<UBoxComponent>(PathResult.HitResult.Component);
+				if (Box)
+				{
+					DrawDebugBox(GetWorld(), Box->GetComponentLocation(), Box->GetScaledBoxExtent(), FQuat(Box->GetComponentRotation()), FColor::Purple, false, 15.f);
+				}
+			}
+
 			// 콜리전 상태를 no collision 상태로 변경 
 			ResetBoxLocation(HitCharacter, ServerSideRewindSnapshot);
 
 			EnableChracterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
 
-			// head, body, check 순서
-			return FServerSideRewindResult{ true, true };
+			// chek, Hit 순서
+			return FServerSideRewindResult{ true, false };
 
-		}
-		else
-		{
-			for (auto& reset : HitCharacter->HitBoxesMap)
-			{
-				reset.Value->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-				reset.Value->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-
-
-			}
-
-			world->LineTraceSingleByChannel(hitresult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility);
-			if (hitresult.bBlockingHit)
-			{
-				// 콜리전 상태를 no collision 상태로 변경 
-				ResetBoxLocation(HitCharacter, ServerSideRewindSnapshot);
-
-				EnableChracterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
-
-				// head, body, check 순서
-				return FServerSideRewindResult{ false, true };
-
-			}
 
 		}
 	}
+
+
 	// 콜리전 상태를 no collision 상태로 변경 
 	ResetBoxLocation(HitCharacter, ServerSideRewindSnapshot);
 
 	EnableChracterMeshCollision(HitCharacter, ECollisionEnabled::QueryAndPhysics);
 
-	// head, body, check 순서
+	// chek, Hit 순서
 	return FServerSideRewindResult{ false, false };
-
 
 }
 
@@ -211,11 +261,15 @@ void UServerSideRewindComponent::SaveTempBoxLocation(ABaseCharacter* HitCharacte
 	// 일시 적으로 캐릭터의 hit 위치를 저장
 	for (auto& fill : HitCharacter->HitBoxesMap)
 	{
-		FHitBoxInfo hitboxinfo;
-		hitboxinfo.Location = fill.Value->GetComponentLocation();
-		hitboxinfo.Rotation = fill.Value->GetComponentRotation();
-		hitboxinfo.Extent = fill.Value->GetScaledBoxExtent();
-		SSRS.HitBoxSnapshot.Add(fill.Key, hitboxinfo);
+		if (fill.Value != nullptr)
+		{
+			FHitBoxInfo hitboxinfo;
+			hitboxinfo.Location = fill.Value->GetComponentLocation();
+			hitboxinfo.Rotation = fill.Value->GetComponentRotation();
+			hitboxinfo.Extent = fill.Value->GetScaledBoxExtent();
+			SSRS.HitBoxSnapshot.Add(fill.Key, hitboxinfo);
+		}
+		
 
 	}
 }
@@ -224,29 +278,59 @@ void UServerSideRewindComponent::MoveTempBoxLocation(ABaseCharacter* HitCharacte
 {
 	if (HitCharacter == nullptr) return;
 
-	// hit 위치로 콜리전 박스 위치, 크기를 옮겨 저장
-	for (auto& setlocation : HitCharacter->HitBoxesMap)
+	for (TTuple<FName, UBoxComponent*>& HitBox : HitCharacter->HitBoxesMap)
 	{
-		setlocation.Value->SetWorldLocation(SSRS.HitBoxSnapshot[setlocation.Key].Location);
-		setlocation.Value->SetWorldRotation(SSRS.HitBoxSnapshot[setlocation.Key].Rotation);
-		setlocation.Value->SetBoxExtent(SSRS.HitBoxSnapshot[setlocation.Key].Extent);
-		
+		if (HitBox.Value != nullptr)
+		{
+			const FHitBoxInfo* BoxInfo = SSRS.HitBoxSnapshot.Find(HitBox.Key);
+
+			if (BoxInfo)
+			{
+				HitBox.Value->SetWorldLocation(SSRS.HitBoxSnapshot[HitBox.Key].Location);
+				HitBox.Value->SetWorldRotation(SSRS.HitBoxSnapshot[HitBox.Key].Rotation);
+				HitBox.Value->SetBoxExtent(SSRS.HitBoxSnapshot[HitBox.Key].Extent);
+
+
+			}
+		}
 	}
+
+
+	// hit 위치로 콜리전 박스 위치, 크기를 옮겨 저장
+	//for (auto& setlocation : HitCharacter->HitBoxesMap)
+	//{
+	//	if (setlocation.Value != nullptr)
+	//	{
+	//		setlocation.Value->SetWorldLocation(SSRS.HitBoxSnapshot[setlocation.Key].Location);	// 문제
+	//		setlocation.Value->SetWorldRotation(SSRS.HitBoxSnapshot[setlocation.Key].Rotation);
+	//		setlocation.Value->SetBoxExtent(SSRS.HitBoxSnapshot[setlocation.Key].Extent);
+
+	//	}
+	//	
+	//}
 }
 
 void UServerSideRewindComponent::ResetBoxLocation(ABaseCharacter* HitCharacter, FServerSideRewindSnapshot& SSRS)
 {
 	if (HitCharacter == nullptr) return;
 
-	for (auto& reset : HitCharacter->HitBoxesMap)
+	for (TTuple<FName, UBoxComponent*>& HitBox : HitCharacter->HitBoxesMap)
 	{
-		FHitBoxInfo hitboxinfo;
-		reset.Value->SetWorldLocation(SSRS.HitBoxSnapshot[reset.Key].Location);
-		reset.Value->SetWorldRotation(SSRS.HitBoxSnapshot[reset.Key].Rotation);
-		reset.Value->SetBoxExtent(SSRS.HitBoxSnapshot[reset.Key].Extent);
-		reset.Value->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		if (HitBox.Value != nullptr)
+		{
+			const FHitBoxInfo* BoxInfo = SSRS.HitBoxSnapshot.Find(HitBox.Key);
 
+			if (BoxInfo)
+			{
+				HitBox.Value->SetWorldLocation(SSRS.HitBoxSnapshot[HitBox.Key].Location);
+				HitBox.Value->SetWorldRotation(SSRS.HitBoxSnapshot[HitBox.Key].Rotation);
+				HitBox.Value->SetBoxExtent(SSRS.HitBoxSnapshot[HitBox.Key].Extent);
+				HitBox.Value->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			}
+
+		}
 	}
+
 }
 
 void UServerSideRewindComponent::EnableChracterMeshCollision(ABaseCharacter* HitCharacter, ECollisionEnabled::Type Collision)
@@ -260,28 +344,30 @@ void UServerSideRewindComponent::EnableChracterMeshCollision(ABaseCharacter* Hit
 	}
 }
 
-void UServerSideRewindComponent::ServerDamageRequest_Implementation(ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime, AWeapon* Damage)
+void UServerSideRewindComponent::ServerProjectileDamageRequest_Implementation(ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime)
 {
-	// 서버 먼저 데미지 처리
-	FServerSideRewindResult CheckDamage = ServerSideRewind(HitCharacter, TraceStart, HitLocation, HitTime);
+	FServerSideRewindResult CheckServerDamage = ProjectileServerSideRewind(HitCharacter, TraceStart, InitialVelocity, HitTime);
 
-	if (Character && CheckDamage.bCheckHit)
+	if (Character && HitCharacter && CheckServerDamage.bCheckHit)
 	{
-		UGameplayStatics::ApplyDamage(HitCharacter, Damage->GetDamage(), Character->Controller, Damage, UDamageType::StaticClass());
+		UGameplayStatics::ApplyDamage(HitCharacter, Character->GetEquippedWeapon()->GetDamage(), Character->Controller, Character->GetEquippedWeapon(), UDamageType::StaticClass()); // 여기서 문제 생김
 
 	}
+
 }
+
 
 void UServerSideRewindComponent::SaveSnapshot()
 {
 	// 서버만 사용
 	if (Character == nullptr || !Character->HasAuthority()) return;
 
-	FServerSideRewindSnapshot ServerSideRewindSnapshot;
+	//FServerSideRewindSnapshot ServerSideRewindSnapshot;
 
 	// 요소 개수 비교
 	if (FrameHistory.Num() <= 1)
 	{
+		FServerSideRewindSnapshot ServerSideRewindSnapshot;
 		// 첫번째 요소에 info 저장 후 head 추가
 		SaveHitBoxInfo(ServerSideRewindSnapshot);
 		FrameHistory.AddHead(ServerSideRewindSnapshot); //list
@@ -303,6 +389,8 @@ void UServerSideRewindComponent::SaveSnapshot()
 
 		}
 
+		FServerSideRewindSnapshot ServerSideRewindSnapshot;
+
 		// 첫 요소가 3초 이상 상당의 요소값이 저장 됐다면 새롭게 다시 info 값 저장 후 head 추가
 		SaveHitBoxInfo(ServerSideRewindSnapshot);
 		FrameHistory.AddHead(ServerSideRewindSnapshot);
@@ -310,5 +398,14 @@ void UServerSideRewindComponent::SaveSnapshot()
 		// debug 
 		//DebugSSR(ServerSideRewindSnapshot);
 	}
+
+}
+
+void UServerSideRewindComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// info 저장 3초후 삭제 
+	SaveSnapshot();
 
 }

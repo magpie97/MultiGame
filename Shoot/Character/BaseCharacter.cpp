@@ -81,7 +81,8 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// 캐릭터 회전 값
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 800.f, 0.f);		// in yaw value : 800.f
+	//GetCharacterMovement()->RotationRate = FRotator(0.f, 800.f, 0.f);		// in yaw value : 800.f
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 990.f);		// test
 	GetCharacterMovement()->JumpZVelocity = 530.f;
 	GetCharacterMovement()->AirControl = 0.25f;
 
@@ -99,6 +100,9 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+
+
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 
 	// net
@@ -123,75 +127,73 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	// 머리 부분
 	HitBoxHead = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxHead"));
 	HitBoxHead->SetupAttachment(GetMesh(), TEXT("head"));
-	HitBoxHead->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("head"), HitBoxHead);
 
 	// 몸통 부분
 	HitBoxPelvis = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxPelvis"));
 	HitBoxPelvis->SetupAttachment(GetMesh(), TEXT("pelvis"));
-	HitBoxPelvis->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("pelvis"), HitBoxPelvis);
 
 	HitBoxSpine_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxSpine_1"));
 	HitBoxSpine_1->SetupAttachment(GetMesh(), TEXT("spine_01"));
-	HitBoxSpine_1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("spine_01"), HitBoxSpine_1);
 
 	HitBoxSpine_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxSpine_2"));
 	HitBoxSpine_2->SetupAttachment(GetMesh(), TEXT("spine_02"));
-	HitBoxSpine_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("spine_02"), HitBoxSpine_2);
 
 	HitBoxSpine_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxSpine_3"));
 	HitBoxSpine_3->SetupAttachment(GetMesh(), TEXT("spine_03"));
-	HitBoxSpine_3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("spine_03"), HitBoxSpine_3);
 
 	// 팔 부분
 	HitBoxUpperArm_L = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxUpperArm_L"));
 	HitBoxUpperArm_L->SetupAttachment(GetMesh(), TEXT("upperarm_l"));
-	HitBoxUpperArm_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("upperarm_l"), HitBoxUpperArm_L);
 
 	HitBoxUpperArm_R = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxUpperArm_R"));
 	HitBoxUpperArm_R->SetupAttachment(GetMesh(), TEXT("upperarm_r"));
-	HitBoxUpperArm_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("upperarm_r"), HitBoxUpperArm_R);
 
 	HitBoxLowerArm_L = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxLowerArm_L"));
 	HitBoxLowerArm_L->SetupAttachment(GetMesh(), TEXT("lowerarm_l"));
-	HitBoxLowerArm_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("lowerarm_l"), HitBoxLowerArm_L);
 
 	HitBoxLowerArm_R = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxLowerArm_R"));
 	HitBoxLowerArm_R->SetupAttachment(GetMesh(), TEXT("lowerarm_r"));
-	HitBoxLowerArm_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("lowerarm_r"), HitBoxLowerArm_R);
 
 	// 다리 부분
 	HitBoxUpperLag_L = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxUpperLag_L"));
 	HitBoxUpperLag_L->SetupAttachment(GetMesh(), TEXT("thigh_l"));
-	HitBoxUpperLag_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("thigh_l"), HitBoxUpperLag_L);
 
 	HitBoxUpperLag_R = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxUpperLag_R"));
 	HitBoxUpperLag_R->SetupAttachment(GetMesh(), TEXT("thigh_r"));
-	HitBoxUpperLag_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("thigh_r"), HitBoxUpperLag_R);
 
 	HitBoxLowerLag_L = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBoxLowerLag_L"));
 	HitBoxLowerLag_L->SetupAttachment(GetMesh(), TEXT("calf_l"));
-	HitBoxLowerLag_L->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("calf_l"), HitBoxLowerLag_L);
 
 	HitBoxLowerLag_R = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBexLowerLag_R"));
 	HitBoxLowerLag_R->SetupAttachment(GetMesh(), TEXT("calf_r"));
-	HitBoxLowerLag_R->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitBoxesMap.Add(FName("calf_r"), HitBoxLowerLag_R);
 
 	// physical animation component
 	//PhysicalAnimationComponent = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
 
+	// 커스텀 콜리전 적용 및 콜리전 비활성화
+	for (auto Box : HitBoxesMap)
+	{
+		if (Box.Value)
+		{
+			Box.Value->SetCollisionObjectType(ECC_HitBox);
+			Box.Value->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			Box.Value->SetCollisionResponseToChannel(ECC_HitBox, ECollisionResponse::ECR_Block);
+			Box.Value->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+	}
 	
 
 

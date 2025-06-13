@@ -79,7 +79,7 @@ public:
 
 	// 총알 데미지
 	UPROPERTY(EditAnywhere, Category = "Damage")
-	float Damage = 0.f;
+	float Damage = 0.f; // 0.f
 
 	//UPROPERTY(Replicated, EditAnywhere)
 	bool bUseServerSideRewind = false;

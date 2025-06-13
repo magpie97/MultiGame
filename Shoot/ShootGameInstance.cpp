@@ -56,15 +56,15 @@ void UShootGameInstance::Init()
 	// !ensure() 지움   지워도 잘됨 
 	if (OnlineSubsystem != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnlineSubsystem Init() "));
+		//UE_LOG(LogTemp, Warning, TEXT("OnlineSubsystem Init() "));
 
 
-		UE_LOG(LogTemp, Warning, TEXT("Found Subsystem : %s"), *OnlineSubsystem->GetSubsystemName().ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Found Subsystem : %s"), *OnlineSubsystem->GetSubsystemName().ToString());
 		// 세션 관리 서비스에 액세스하기 위한 인터페이스 가져오기
 		SessionInterface =  OnlineSubsystem->GetSessionInterface();
 		if (SessionInterface.IsValid())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found SessionInterface"));
+			//UE_LOG(LogTemp, Warning, TEXT("Found SessionInterface"));
 
 			/*
 			콜백
@@ -82,7 +82,7 @@ void UShootGameInstance::Init()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Not Found Subsystem !! is NULL"));
+		//UE_LOG(LogTemp, Warning, TEXT("Not Found Subsystem !! is NULL"));
 	}
 
 	if (GEngine != nullptr)
@@ -171,7 +171,7 @@ void UShootGameInstance::OnCreateSessionComplete(FName SessionName, bool Success
 {
 	if (!Successful)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Could not create session"));
+		//UE_LOG(LogTemp, Warning, TEXT("Could not create session"));
 		return;
 	}
 
@@ -201,7 +201,7 @@ void UShootGameInstance::OnDestroySessionComplete(FName SessionName, bool Succes
 	{
 		// Host버튼에 DestroySession 함수가 실행되면 세션이 파괴 돼고
 		// 세션이 파괴가 완료 되었다는 콜백을 받는다   그러면 다시 세션을 만드는 함수 실행
-		UE_LOG(LogTemp, Warning, TEXT("destroyed session"));
+		//UE_LOG(LogTemp, Warning, TEXT("destroyed session"));
 		CreateSession();
 		
 	}
@@ -209,7 +209,7 @@ void UShootGameInstance::OnDestroySessionComplete(FName SessionName, bool Succes
 
 void UShootGameInstance::OnNetworkFailure(UWorld* World, UNetDriver* NetDriver, ENetworkFailure::Type FailureType, const FString& ErrorString)
 {
-	UE_LOG(LogTemp, Warning, TEXT("destroyed session"));
+	//UE_LOG(LogTemp, Warning, TEXT("destroyed session"));
 	LoadMainMenu();
 
 }
@@ -238,7 +238,7 @@ void UShootGameInstance::RefreshServerList()
 		// 이거 찾기 너무 힘듬... FOnlineSessionSteam에 사용되고 있는 매개변수들임 
 		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
-		UE_LOG(LogTemp, Warning, TEXT("Start Find Session"));
+		//UE_LOG(LogTemp, Warning, TEXT("Start Find Session"));
 		// 인수 1번째 SearchingPlayerNum
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
 	}
@@ -249,14 +249,14 @@ void UShootGameInstance::OnFindSessionsComplete(bool Successful)
 {
 	if (Successful && SessionSearch.IsValid() && Menu != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Finished Find Session"));
+		//UE_LOG(LogTemp, Warning, TEXT("Finished Find Session"));
 
 		TArray<FServerData> ServerNames;
 
 		// auto 로 타입을 확인    TArray 변수 SearchResults 이다
 		for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Find Session name : %s"), *SearchResult.GetSessionIdStr());
+			//UE_LOG(LogTemp, Warning, TEXT("Find Session name : %s"), *SearchResult.GetSessionIdStr());
 			FServerData Data;	
 			
 
@@ -352,7 +352,7 @@ void UShootGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSession
 	FString Address;
 	if (!SessionInterface->GetResolvedConnectString(SessionName, Address))	// SessionName
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Could not get connect string"));
+		//UE_LOG(LogTemp, Warning, TEXT("Could not get connect string"));
 		return;
 	}
 

@@ -33,13 +33,14 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	// 해결해야 함   됀듯함 
 
 	NumberOfPlayers = GameState->PlayerArray.Num();
+	
 	//++NumberOfPlayers;
 
 	ShootGameInstance = ShootGameInstance == nullptr ? Cast<UShootGameInstance>(GetGameInstance()) : ShootGameInstance;	
 
 	if (ShootGameInstance && NumberOfPlayers == ShootGameInstance->GetNumPublicConnections())	// NumberOfPlayers 사용함
 	{
-		UE_LOG(LogTemp, Error, TEXT("ShootGameInstance is Not NULL"));
+		//UE_LOG(LogTemp, Error, TEXT("ShootGameInstance is Not NULL"));
 
 		UWorld* World = GetWorld();
 		if (!ensure(World != nullptr)) return;

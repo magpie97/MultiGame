@@ -421,14 +421,10 @@ void AShooterPlayerController::SRequestServerTime_Implementation(float TimeOfCli
 
 void AShooterPlayerController::CReportServerTime_Implementation(float TimeOfClientRequest, float TimeServerReceivedClientRequest)
 {
-	// 서버에서 클라로 클라에서 서버로 왕복한 시간 초기화
-
-
-
 	// 클라이언트 시간 - 120초 뺀 값을 초기화
 	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
 
-	SingleTripTime = 0.5 * RoundTripTime;
+	SingleTripTime = 0.5f * RoundTripTime;
 
 	float CurrentServerTime = TimeServerReceivedClientRequest + SingleTripTime;
 
