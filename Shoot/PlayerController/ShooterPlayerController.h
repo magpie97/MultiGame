@@ -173,9 +173,6 @@ public:
 
 
 public:
-
-
-
 	UPROPERTY()
 	class AShootingGameMode* ShootingGameMode;
 
@@ -191,8 +188,6 @@ public:
 	/*
 		인 게임 채팅 시스템
 	*/
-
-
 	UFUNCTION()
 	void SendMessage(const FText& Text);
 
@@ -211,6 +206,12 @@ private:
 
 
 
+	/*
+		네트워크  ping check 
+	*/
+
+	//UPROPERTY()
+	//class AShooterPlayerState* ShooterPlayerState;
 
 
 	/* 

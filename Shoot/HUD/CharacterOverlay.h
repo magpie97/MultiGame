@@ -16,22 +16,22 @@ class SHOOT_API UCharacterOverlay : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category = "Health", meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* HealthBar;
 
-	UPROPERTY(VisibleAnywhere, Category = "Health", meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* HealthText;
 
 	// 케릭터가 죽였을때 
-	UPROPERTY(VisibleAnywhere, Category = "PlayerScore", meta = (BindWidget))
-	class UTextBlock* PlayerKillScore;
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* PlayerKillScore;
 
 	// 케릭터가 죽었을때 
-	UPROPERTY(VisibleAnywhere, Category = "PlayerScore", meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* PlayerDeathScore;
 
 	// 무기에 대한 총알 기본 탄창
-	UPROPERTY(VisibleAnywhere, Category = "Ammo", meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* WeaponAmmoAmount;
 
 	UPROPERTY(meta = (BindWidget))
@@ -42,25 +42,6 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* GrenadeAmount;
-
-
-
-
-	// warnning animations
-	//UPROPERTY(meta = (BindWidget))
-	//UTextBlock* NetworkProblem;
-
-	//UPROPERTY(meta = (BindWidget))
-	//UTextBlock* LowFPS;
-
-	//UPROPERTY(meta = (BindWidget), Transient)
-	//class UWidgetAnimation* NetworkProblemAnimation;
-
-	//UPROPERTY(meta = (BindWidget), Transient)
-	//class UWidgetAnimation* LowFPSAnimation;
-
-
-
 
 
 private:

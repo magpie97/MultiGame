@@ -27,5 +27,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> ServerSideRewindProjectileClass;
 
+	//firing camera shake
+	/*UPROPERTY(EditAnywhere)
+	TSubclassOf<class UCameraShakeBase> CameraShake;*/
+
 	
 };

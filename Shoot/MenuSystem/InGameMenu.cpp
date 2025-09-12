@@ -18,10 +18,12 @@ bool UInGameMenu::Initialize()
 	if (!ensure(IGM_LeaveGameButton != nullptr)) return false;
 	IGM_LeaveGameButton->OnClicked.AddDynamic(this, &UInGameMenu::LeaveGamePressed);
 
+	// test code
+	if (!ensure(IGM_BG_BackButtonSection != nullptr)) return false;
+	IGM_BG_BackButtonSection->OnClicked.AddDynamic(this, &UInGameMenu::BackPressed);
+
 	return true;
 }
-
-
 
 void UInGameMenu::BackPressed()
 {
@@ -36,5 +38,4 @@ void UInGameMenu::LeaveGamePressed()
 		Teardown();
 		MenuInterface->LoadMainMenu();
 	}
-
 }

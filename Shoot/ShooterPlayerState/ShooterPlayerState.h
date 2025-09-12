@@ -25,6 +25,10 @@ public:
 	UFUNCTION()
 	void AddToDeathScore(uint32 DeathScoreAmount);
 
+	// state 클래스에 이미 정의됨 따라서 이건 안씀
+	UFUNCTION()
+	void ShowPing();
+
 private:
 	UPROPERTY()
 	class ABaseCharacter* Character;
@@ -35,6 +39,8 @@ private:
 	// getlifetimereplicatedprops에 사용할것이기에 매크로에 ReplicatedUsing을 사용
 	UPROPERTY(ReplicatedUsing = OnRep_DeathScore)
 	uint32 death;
+
+	
 	
 
 

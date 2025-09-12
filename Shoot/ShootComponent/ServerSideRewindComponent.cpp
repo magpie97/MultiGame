@@ -66,8 +66,6 @@ void UServerSideRewindComponent::DebugSSR(FServerSideRewindSnapshot& serversider
 	}
 }
 
-
-
 FServerSideRewindResult UServerSideRewindComponent::ProjectileServerSideRewind(ABaseCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize100& InitialVelocity, float HitTime)
 {
 	FServerSideRewindSnapshot SnapshotCheck = GetFrameToCheck(HitCharacter, HitTime);
@@ -169,23 +167,24 @@ FServerSideRewindResult UServerSideRewindComponent::CheckProjectileHitBody(FServ
 	FPredictProjectilePathParams PathParams;
 	PathParams.bTraceWithCollision = true;
 	PathParams.MaxSimTime = MaxRewindTime;
-	PathParams.LaunchVelocity = InitialVelocity;
+	PathParams.LaunchVelocity = InitialVelocity; 
 	PathParams.StartLocation = TraceStart;
 	PathParams.SimFrequency = 15.f;
 	PathParams.ProjectileRadius = 5.f;
 	PathParams.TraceChannel = ECC_HitBox;
 	PathParams.ActorsToIgnore.Add(GetOwner());
-	PathParams.DrawDebugTime = 5.f;
-	PathParams.DrawDebugType = EDrawDebugTrace::ForDuration;
+	//PathParams.DrawDebugTime = 5.f;
+	//PathParams.DrawDebugType = EDrawDebugTrace::ForDuration;
 
 	FPredictProjectilePathResult PathResult;
-	UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);
+	//UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);  임시 주석
 	
 
 	FHitResult HitResult;
 	if (PathResult.HitResult.bBlockingHit)
 	{
-		if (PathResult.HitResult.Component.IsValid())
+		// 사용중
+		/*if (PathResult.HitResult.Component.IsValid())
 		{
 			UBoxComponent* Box = Cast<UBoxComponent>(PathResult.HitResult.Component);
 			if (Box)
@@ -193,7 +192,7 @@ FServerSideRewindResult UServerSideRewindComponent::CheckProjectileHitBody(FServ
 				DrawDebugBox(GetWorld(), Box->GetComponentLocation(), Box->GetScaledBoxExtent(), FQuat(Box->GetComponentRotation()), FColor::Red, false, 15.f);
 
 			}
-		}
+		}*/
 
 		// 콜리전 상태를 no collision 상태로 변경 
 		ResetBoxLocation(HitCharacter, ServerSideRewindSnapshot);
@@ -221,15 +220,15 @@ FServerSideRewindResult UServerSideRewindComponent::CheckProjectileHitBody(FServ
 
 		if (PathResult.HitResult.bBlockingHit)
 		{
-			// debug
-			if (PathResult.HitResult.Component.IsValid())
+			// debug  사용중
+			/*if (PathResult.HitResult.Component.IsValid())
 			{
 				UBoxComponent* Box = Cast<UBoxComponent>(PathResult.HitResult.Component);
 				if (Box)
 				{
 					DrawDebugBox(GetWorld(), Box->GetComponentLocation(), Box->GetScaledBoxExtent(), FQuat(Box->GetComponentRotation()), FColor::Purple, false, 15.f);
 				}
-			}
+			}*/
 
 			// 콜리전 상태를 no collision 상태로 변경 
 			ResetBoxLocation(HitCharacter, ServerSideRewindSnapshot);
@@ -350,7 +349,7 @@ void UServerSideRewindComponent::ServerProjectileDamageRequest_Implementation(AB
 
 	if (Character && HitCharacter && CheckServerDamage.bCheckHit)
 	{
-		UGameplayStatics::ApplyDamage(HitCharacter, Character->GetEquippedWeapon()->GetDamage(), Character->Controller, Character->GetEquippedWeapon(), UDamageType::StaticClass()); // 여기서 문제 생김
+		UGameplayStatics::ApplyDamage(HitCharacter, Character->GetEquippedWeapon()->GetDamage(), Character->Controller, Character->GetEquippedWeapon(), UDamageType::StaticClass());
 
 	}
 
@@ -395,8 +394,6 @@ void UServerSideRewindComponent::SaveSnapshot()
 		SaveHitBoxInfo(ServerSideRewindSnapshot);
 		FrameHistory.AddHead(ServerSideRewindSnapshot);
 
-		// debug 
-		//DebugSSR(ServerSideRewindSnapshot);
 	}
 
 }

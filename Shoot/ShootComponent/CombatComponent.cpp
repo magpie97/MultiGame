@@ -253,6 +253,7 @@ void UCombatComponent::ServerSetSprint_Implementation(bool bIsSprint)
 
 }
 
+
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
@@ -286,16 +287,11 @@ void UCombatComponent::Fire()
 				break;
 			}
 		}
-
-
 		// 카메라 쉐이크
 		if (CameraShake)
 		{
 			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(CameraShake);
 		}
-
-
-		
 
 		// 총을 연사 딜레이 
 		StartFireTimer();
@@ -311,30 +307,20 @@ void UCombatComponent::FireProjectileWeapon()
 		{
 			LocalFire(HitTarget);
 		}
-			
-
-		
-		ServerSetFire(HitTarget);
+		ServerSetFire(HitTarget, EquippedWeapon->FireDelay);
 
 	}
 	
 	// test code
 	/*if (CanFire())
-
 	{
-
 		ServerSetFire(HitTarget);
 
 		if (Character && !Character->HasAuthority())
-
 		{
-
 			LocalFire(HitTarget);
-
 		}
-
 		StartFireTimer();
-
 	}*/
 
 
@@ -376,9 +362,23 @@ bool UCombatComponent::CanFire()
 	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
 
-void UCombatComponent::ServerSetFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+void UCombatComponent::ServerSetFire_Implementation(const FVector_NetQuantize& TraceHitTarget, float FireDelay)
 {
 	MulticastSetFire(TraceHitTarget);
+
+}
+
+// 유효성 검사  weapon 클래스에 비 이상적인 값으로 초기화 하여 게임 진행에 있어 불합리한 상황이 생길 우려를 조기에 진압하여 처리할 함수
+// fire delay 만 처리하여 테스트 진행 후 결과는 세션을 강제 퇴장 시켜 더 이상 게임을 진행하지 못하게 처리를 하게됨 
+bool UCombatComponent::ServerSetFire_Validate(const FVector_NetQuantize& TraceHitTarget, float FireDelay)
+{
+	if (EquippedWeapon)
+	{
+		bool FireDelayEqualValue = FMath::IsNearlyEqual(EquippedWeapon->FireDelay, FireDelay, 0.001f);
+
+		return FireDelayEqualValue;
+	}
+	return true;
 
 }
 
@@ -621,6 +621,9 @@ void UCombatComponent::ThrowGrenadeHold(bool bGrenade)
 {
 	bCanThrowGrenade = bGrenade;
 
+	//class ABaseCharacter* Character = Cast<ABaseCharacter>(GetOwner());
+
+
 	if (CarriedGrenade == 0) return;
 
 	if (Character == nullptr) return;
@@ -628,22 +631,24 @@ void UCombatComponent::ThrowGrenadeHold(bool bGrenade)
 	if (CarriedGrenade <= 0)
 	{
 		bCanThrowGrenade = false;
+		
 	}
 	else
-	{
+	{ 
 		CombatState = ECombatState::ECS_ThrowGrenadeHold;
 		ShowGrenadeMesh(true);
+
+		if (Character->IsLocallyControlled())
+		{
+			bCanFire = false;
+		}
 		bCanFire = false;
 
 		if (Character && bCanThrowGrenade)
 		{
-			Character->PlayThrowGrenadeHoldMontage();
-
 			ServerThrowGrenadeHold();
 		}
-
 	}
-	
 }
 
 void UCombatComponent::ServerThrowGrenadeHold_Implementation()
@@ -664,7 +669,6 @@ void UCombatComponent::MultiThrowGrenadeHold_Implementation()
 	{
 		Character->PlayThrowGrenadeHoldMontage();
 
-
 	}
 }
 
@@ -680,12 +684,10 @@ void UCombatComponent::ThrowGrenade(bool bGrenade)
 
 	bCanFire = true;
 	
-
 	if (Character)
 	{
 		ShowGrenadeMesh(false);
 		Character->PlayThrowGrenadeMontage();
-		
 		
 	}
 
@@ -701,7 +703,6 @@ void UCombatComponent::ThrowGrenade(bool bGrenade)
 		UpdateCarriedGrenade();
 
 	}
-
 }
 
 void UCombatComponent::ServerThrowGrenade_Implementation()
@@ -961,7 +962,6 @@ void UCombatComponent::InterpFOV(float DeltaTime)
 	{
 		Character->GetFollowCamera()->SetFieldOfView(CurrentFOV);
 	}
-
 }
 
 void UCombatComponent::InterpCamera(float Delta)
@@ -970,31 +970,24 @@ void UCombatComponent::InterpCamera(float Delta)
 	if (EquippedWeapon == nullptr) return;
 	if (Character == nullptr) return;
 
-
 	//FirstCamera = Character->GetFollowCamera()->GetRelativeLocation();
 	SecondCamera = Character->GetSecondCamera()->GetRelativeLocation();
 
-
 	class UCameraComponent* Camera = Character->GetFollowCamera();
 
-	
 	// target (X=130.000610,Y=55.000015,Z=-30.000000
 
 	if (bAiming)
 	{
 		CurrentCameraLocation = FMath::VInterpTo(CurrentCameraLocation, SecondCamera, Delta, 7.f);
-		
 	}
 	else
 	{
 		CurrentCameraLocation = FMath::VInterpTo(CurrentCameraLocation, DefaultCameraLocation, Delta, 3.f);
-		
 	}
 
 	if (Character && Character->GetFollowCamera())
 	{
 		Camera->SetRelativeLocation(CurrentCameraLocation);
-
 	}
-
 }

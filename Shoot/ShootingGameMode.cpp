@@ -53,7 +53,7 @@ void AShootingGameMode::Tick(float DeltaSeconds)
 	// 액터는 티킹을 하지만 게임은 시작하지 않는다
 	if (GetMatchState() == MatchState::WaitingToStart)
 	{
-		GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Red, TEXT("Current GameMode State : WaitingToStart"));
+		//GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Red, TEXT("Current GameMode State : WaitingToStart"));
 		
 		// 인게임 시작하기전 웨이팅 시간 - 게임 시작시 카운트 되는 시간값 을 구하고 countdowntime 변수를 초기화
 		// 10초
@@ -71,7 +71,7 @@ void AShootingGameMode::Tick(float DeltaSeconds)
 	}
 	else if (GetMatchState() == MatchState::InProgress)
 	{
-		GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Blue, TEXT("Current GameMode State : InProgress"));
+		//GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Blue, TEXT("Current GameMode State : InProgress"));
 
 		// 게임이 진행후 끝날 시간 계산 
 		// 게임 진행 시간이 0초라면 다른게임 모드로 변경  
@@ -83,7 +83,7 @@ void AShootingGameMode::Tick(float DeltaSeconds)
 	}
 	else if (GetMatchState() == MatchState::WaitNextGame)	// 게임이 끝나고 새로운 게임을 시작할 matchstate
 	{
-		GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Black, TEXT("Current GameMode State : WaitNextGame"));
+		//GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Black, TEXT("Current GameMode State : WaitNextGame"));
 
 		// 게임이 끝난 이후 다음 게임으로 넘어갈 시간
 		CountdownTime = WaitNextGameTime + WaitTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
@@ -125,8 +125,8 @@ void AShootingGameMode::OnMatchStateSet()
 			PlayerController->OnMatchStateSet(MatchState);				 
 			
 		}
-		FString s = FString::Printf(TEXT(" Current MatchState : %s "), *MatchState.ToString());
-		GEngine->AddOnScreenDebugMessage(3, 60.f, FColor::Red, s);
+		//FString s = FString::Printf(TEXT(" Current MatchState : %s "), *MatchState.ToString());
+		//GEngine->AddOnScreenDebugMessage(3, 60.f, FColor::Red, s);
 		
 	}
 

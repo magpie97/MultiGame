@@ -19,6 +19,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Shoot/ShootGameInstance.h"
 #include "Shoot/HUD/ChatSystem.h"
+#include "Shoot/ShooterPlayerState/ShooterPlayerState.h"
 
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
@@ -35,7 +36,11 @@ void AShooterPlayerController::BeginPlay()
 
 	ServerCheckMatchState();
 
-	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Blue, TEXT("BeginePlay func called restart"));
+	//GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Blue, TEXT("BeginePlay func called restart"));
+
+	//test
+
+	//bIsFocusable = true;
 
 	//UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
@@ -90,6 +95,23 @@ void AShooterPlayerController::Tick(float DeltaTime)
 
 
 
+	// ping test code
+	/*if (ShooterPlayerState != nullptr)
+	{
+		if (ShooterPlayerState)
+		{
+			GEngine->AddOnScreenDebugMessage(4, 1.f, FColor::White, FString::FromInt(ShooterPlayerState->ShowPing()));
+		}
+	}*/
+
+	// controller 클래스에 정의된걸 확인 했음
+	PlayerState = PlayerState == nullptr ? GetPlayerState<AShooterPlayerState>() : PlayerState;
+
+	if (PlayerState)
+	{
+		GEngine->AddOnScreenDebugMessage(4, 1.f, FColor::White, FString::Printf(TEXT("Ping : %d"), PlayerState->GetPing() * 4));
+		
+	}
 }
 
 void AShooterPlayerController::CheckTimeSync(float DeltaTime)
@@ -152,17 +174,16 @@ void AShooterPlayerController::PollInit()
 				if (bInitHUDDeadthScore)   { SetHUDDeathScore(HUDDeathScore);              }
 				if (bInitHUDCarriedAmmo)   { SetHUDCarriedAmmo(HUDCarriedAmmo);            }
 				if (bInitHUDWeaponAmmo)    { SetHUDWeaponAmmo(HUDWeaponAmmo);              }
+				//if (bInitHUDGrenade) { SetHUDCarriedGrenade(HUDGrenade); }// test
+				
 
 				ABaseCharacter* BaseCharacter = Cast<ABaseCharacter>(GetPawn());
 				if (BaseCharacter && BaseCharacter->GetCombat())
 				{
-					SetHUDCarriedGrenade(BaseCharacter->GetCombat()->GetCarriedGrenade());
-
-
-					/*if (bInitHUDGrenade)
+					if (bInitHUDGrenade)
 					{
 						SetHUDCarriedGrenade(BaseCharacter->GetCombat()->GetCarriedGrenade());
-					}*/
+					}
 
 				}
 			}
@@ -580,7 +601,7 @@ void AShooterPlayerController::SendMessage(const FText& Text)
 		//UE_LOG(LogTemp, Warning, TEXT("UserName is (address) : %s"), &UserName);
 		//UE_LOG(LogTemp, Warning, TEXT("UserName is (pointer) : %s"), *UserName);
 
-		GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Blue, FString::Printf(TEXT("T_UserName : %s"), *UserName));
+		//GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Blue, FString::Printf(TEXT("T_UserName : %s"), *UserName));
 
 		FString Message = FString::Printf(TEXT("%s: %s"), *UserName, *Text.ToString());
 
@@ -604,25 +625,42 @@ void AShooterPlayerController::FocusChatInputText()
 
 	// 입력 할 위젯과 플레이어 컨트롤러의 컨트롤을 변경가능한 구조체
 	FInputModeUIOnly InputModeUIOnly;
+	//FInputModeGameOnly InputModeGameOnly;
 
 	//enter 키 입력하면 위젯의 포커스를 변경 
 	InputModeUIOnly.SetWidgetToFocus(HUD->GetChatInputTextObject()); //default InputModeUIOnly
-	InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::LockOnCapture);
-
-
-	SetInputMode(InputModeUIOnly);
 	
-	FViewport* Viewport = GetWorld()->GetGameViewport()->Viewport;
+	InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+
+
+	// test
+	/*APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	PlayerController->SetShowMouseCursor(false);*/
+
+	SetInputMode(InputModeUIOnly); // 사용중
+
+	
+
+
+
+
+	// view port 락
+	/*FViewport* Viewport = GetWorld()->GetGameViewport()->Viewport;
 	if (Viewport)
 	{
 		Viewport->LockMouseToViewport(true);
 		Viewport->CaptureMouse(true);
-	}
+	}*/
 }
 
 void AShooterPlayerController::FocusGame()
 {
 	SetInputMode(FInputModeGameOnly());  
+
+	// 다시 돌려 놓기 
+	//EnableInput(this);
+	//this->SetShowMouseCursor(false);
+
 	
 }
 
@@ -650,6 +688,6 @@ void AShooterPlayerController::ServerToClientSendMessage_Implementation(const FS
 	AShooterHUD* hud = GetHUD<AShooterHUD>();
 	if (hud == nullptr) return;
 
-	hud->AddChatMessage(*Message);  // dereference  test
+	hud->AddChatMessage(*Message);  // dereference
 	
 }

@@ -21,13 +21,21 @@ void UChat::NativeConstruct()
 	// 기본 폰트를 가져오는 파인더
 	//static ConstructorHelpers::FObjectFinder<UFont> RobotoFontObj(*UWidget::GetDefaultFontName());
 
-	//test
-	//bIsFocusable = true;
+	
 
 	if (ChatInput)
 	{
+		//test 
+		class AShooterPlayerController* PlayerController = Cast<AShooterPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+		if (PlayerController == nullptr) return;
+
+		// 실 사용중 
 		ChatInput->OnTextCommitted.AddDynamic(this, &UChat::OnChatTextCommitted);
+
+		// test
+		ChatInput->SetUserFocus(PlayerController);
 	}
+
 	
 }
 
@@ -83,7 +91,6 @@ void UChat::OnChatTextCommitted(const FText& Text, ETextCommit::Type CommitMetho
 	class AShooterGameState* GameState = GetWorld() != nullptr ? World->GetGameState<AShooterGameState>() : nullptr;
 
 
-
 	FName GameStateWaitingToStart = "WaitingToStart";
 	FName GameStateInProgress = "InProgress";
 
@@ -97,8 +104,7 @@ void UChat::OnChatTextCommitted(const FText& Text, ETextCommit::Type CommitMetho
 				// watingtostart 가 아니라면  입력 안되게 변경
 				SetChatInputTextMessage(Text.GetEmpty());
 				
-				//test
-				bIsFocusable = true;
+				
 
 				PlayerController->FocusGame();
 				break;
@@ -110,6 +116,9 @@ void UChat::OnChatTextCommitted(const FText& Text, ETextCommit::Type CommitMetho
 
 				//test
 				bIsFocusable = true;
+
+				//test 
+				//SetUserFocus(PlayerController);
 
 				SetChatInputTextMessage(Text.GetEmpty());
 

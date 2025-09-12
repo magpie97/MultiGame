@@ -42,7 +42,10 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 
 		if (bUseServerSideRewind)
 		{
-			if (InstigatorPawn->HasAuthority()) // 서버 ssr 사용
+			// camera shake 기능 추가 필요  현제 컴벳 클래스에 적용했음
+
+
+			if (InstigatorPawn->HasAuthority()) // 서버에서만 실행
 			{
 				// 현재 클라에선 inpact point에 두번 탄착하는것으로 보여짐 
 				if (InstigatorPawn->IsLocallyControlled()) //pawn으로 로컬로 부터 입력을 받는지 확인

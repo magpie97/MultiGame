@@ -86,6 +86,13 @@ void AShooterPlayerState::AddToDeathScore(uint32 DeathScoreAmount)
 	}
 }
 
+void AShooterPlayerState::ShowPing()
+{
+	GEngine->AddOnScreenDebugMessage(4, 1.f, FColor::White, FString::FromInt(GetPing() * 4));
+	
+
+}
+
 // 서버에 복사
 void AShooterPlayerState::OnRep_DeathScore()
 {

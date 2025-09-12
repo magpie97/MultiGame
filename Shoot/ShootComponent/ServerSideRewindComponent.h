@@ -52,7 +52,7 @@ struct FServerSideRewindResult
 {
 	GENERATED_BODY()
 
-	// 맞았는지 체크
+	// body에 맞았는지 확인
 	UPROPERTY()
 	bool bCheckHit;
 

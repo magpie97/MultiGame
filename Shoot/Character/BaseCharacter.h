@@ -53,8 +53,9 @@ private:
 	class AShootingGameMode* GameMode;
 
 
-public:
 
+
+public:
 
 
 

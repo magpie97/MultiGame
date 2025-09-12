@@ -7,9 +7,13 @@
 #include "MenuWidget.h"
 #include "InGameMenu.generated.h"
 
+class UButton;
+
 /**
  * 
  */
+
+
 UCLASS()
 class SHOOT_API UInGameMenu : public UMenuWidget
 {
@@ -23,16 +27,20 @@ protected:
 private:
 	// 인 게임 메뉴 버튼들
 	UPROPERTY(meta = (BindWidget))
-	class UButton* IGM_BackButton;
+	UButton* IGM_BackButton;
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* IGM_LeaveGameButton;
+	UButton* IGM_LeaveGameButton;
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* IGM_OptionButton;
+	UButton* IGM_OptionButton;
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* IGM_ExitGameButton;
+	UButton* IGM_ExitGameButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* IGM_BG_BackButtonSection;
+
 
 
 

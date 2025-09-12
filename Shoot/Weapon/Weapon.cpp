@@ -66,6 +66,14 @@ void AWeapon::BeginPlay()
 	}
 
 
+	// 크래킹 test
+	/*if (!HasAuthority())
+	{
+		FireDelay = 0.005f;
+
+
+	}*/
+
 }
 
 // Called every frame
@@ -81,7 +89,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
-	DOREPLIFETIME(AWeapon, bUseServerSideRewind);
+	DOREPLIFETIME_CONDITION(AWeapon, bUseServerSideRewind, COND_OwnerOnly);
 
 }
 
@@ -90,7 +98,7 @@ void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	ABaseCharacter* BaseCharacter = Cast<ABaseCharacter>(OtherActor);
 	if (BaseCharacter)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Red, FString(TEXT("Overlapping weapon collision")));
+		//GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Red, FString(TEXT("Overlapping weapon collision")));
 
 		// 위젯 표시 (E)
 		BaseCharacter->SetOverlappingWeapon(this);
@@ -103,7 +111,7 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	ABaseCharacter* BaseCharacter = Cast<ABaseCharacter>(OtherActor);
 	if (BaseCharacter)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Red, FString(TEXT("Out the weapon collision")));
+		//GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Red, FString(TEXT("Out the weapon collision")));
 
 		BaseCharacter->SetOverlappingWeapon(nullptr);
 	}

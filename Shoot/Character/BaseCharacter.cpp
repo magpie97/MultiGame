@@ -33,6 +33,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Components/TextBlock.h"
 #include "Shoot/ShootComponent/ServerSideRewindComponent.h"
+#include "Shoot/GameState/ShooterGameState.h"
 
 
 
@@ -47,6 +48,7 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) :
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	bReplicates = true;
+	SetReplicateMovement(true);	//test 
 
 	// 카메라 암
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -212,7 +214,6 @@ void ABaseCharacter::BeginPlay()
 
 	UpdateHUDHealth();
 
-	
 	/*if (PhysicalAnimationComponent)
 	{
 		PhysicalAnimationComponent->SetSkeletalMeshComponent(GetMesh());
@@ -221,10 +222,6 @@ void ABaseCharacter::BeginPlay()
 
 	}*/
 	
-
-
-	//PollInit();
-
 	// 서버확인
 	if (HasAuthority())
 	{
@@ -304,7 +301,7 @@ void ABaseCharacter::MoveRight(float Value)
 void ABaseCharacter::Turn(float Value)
 {
 	AddControllerYawInput(Value);
-
+	
 }
 
 void ABaseCharacter::LookUp(float Value)
@@ -998,9 +995,6 @@ void ABaseCharacter::ApplyDamage(AActor* DamagedActor, float Damage, const UDama
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
 
 	UpdateHUDHealth();
-
-	// todo 피직스 애니메이션 구현 필요  (총알 맞았을때) 
-
 
 	PlayHitReactMontage();
 

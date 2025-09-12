@@ -180,10 +180,10 @@ void UShootGameInstance::OnCreateSessionComplete(FName SessionName, bool Success
 		Menu->Teardown();
 	}
 
-	if (GEngine)
+	/*if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, TEXT("Hosting"));
-	}
+	}*/
 
 	// ServerTravel을 만들기위해 world를 null 체크 한다
 	UWorld* World = GetWorld();
@@ -298,12 +298,12 @@ void UShootGameInstance::CreateSession()
 		// 로컬 네트워크 상의 멀티플레이어 게임인지 설정한다 (기본은 bIsLanMatch=0)
 		if(IOnlineSubsystem::Get()->GetSubsystemName() == "NULL")
 		{
-			GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Blue, TEXT("OnlineSubsystem : LAN On and Steam Offline"));
+			//GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Blue, TEXT("OnlineSubsystem : LAN On and Steam Offline"));
 			SessionSettings.bIsLANMatch = true;
 		}
 		else
 		{
-			GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Blue, TEXT("OnlineSubsystem : LAN Off  and Steam Online"));
+			//GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Blue, TEXT("OnlineSubsystem : LAN Off  and Steam Online"));
 			SessionSettings.bIsLANMatch = false;
 		}
 
@@ -359,7 +359,7 @@ void UShootGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSession
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine != nullptr)) return;
 
-	Engine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString::Printf(TEXT("Joining %s"), *Address));
+	//Engine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString::Printf(TEXT("Joining %s"), *Address));
 
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (!ensure(PlayerController != nullptr)) return;

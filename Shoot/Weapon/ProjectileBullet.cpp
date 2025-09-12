@@ -58,6 +58,8 @@ void AProjectileBullet::OnComponentHit(UPrimitiveComponent* HitComp, AActor* Oth
 
 				return;
 
+				
+
 			}
 
 			ABaseCharacter* HitCharacter = Cast<ABaseCharacter>(OtherActor);
@@ -66,7 +68,7 @@ void AProjectileBullet::OnComponentHit(UPrimitiveComponent* HitComp, AActor* Oth
 				OwnerCharacter->GetServerSideRewindComponent()->ServerProjectileDamageRequest(HitCharacter, TraceStart, InitVelocity, OwnerController->GetServerTime() - OwnerController->SingleTripTime);
 
 				//debug
-				UE_LOG(LogTemp, Warning, TEXT("ApplyDamage"));
+				//UE_LOG(LogTemp, Warning, TEXT("ApplyDamage"));
 
 			}
 		}

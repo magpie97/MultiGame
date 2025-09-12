@@ -52,8 +52,10 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetSprint(bool bIsSprint);
+
 	//=================================================
 
+	
 
 
 	//=========해당 하는 총기의 애니메이션 서버와 클라이언트 실행============
@@ -76,8 +78,8 @@ protected:
 	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
 
 	// 클라이언트에서 서버로 총을 발사하는 애니메이션은 작동하지만 클라이언트에서 보여지는건 없다 그리하여
-	UFUNCTION(Server, Reliable)
-	void ServerSetFire(const FVector_NetQuantize& TraceHitTarget);
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetFire(const FVector_NetQuantize& TraceHitTarget, float FireDelay);
 
 	// netmulticast 를 사용하여 모든 클라이언트에게 보여지게 한다
 	UFUNCTION(NetMulticast, Reliable)
@@ -271,7 +273,7 @@ public:
 
 	// 수류탄 개수
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_CarriedGrenade)
-	int32 CarriedGrenade = 10;
+	int32 CarriedGrenade = 3;
 
 	UFUNCTION()
 	void OnRep_CarriedGrenade();
