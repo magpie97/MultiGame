@@ -9,25 +9,49 @@
 /**
  * 
  */
+
+//class UTextBlock;
+//class UImage;
+
+
 UCLASS()
 class SHOOT_API UKillFeed : public UUserWidget
 {
 	GENERATED_BODY()
 
-
 public:
 
-	UPROPERTY(meta = (BindWidget))
-	class UHorizontalBox* HorizontalBox_KillFeed;
+	UPROPERTY()
+	class UBackgroundBlur* BG_Blur;
 
-	UPROPERTY(meta = (BindWidget))
-	class UTextBox* TextBox_KillFeed;
+	UPROPERTY()
+	class UHorizontalBox* KillFeed_HorizontalBox;
+
+	UPROPERTY()
+	class UTextBlock* SuspectUserName_TextBlock;
+
+	UPROPERTY()
+	class UTextBlock* VictimUserName_TextBlock;
+	
+	// Animations
+	UPROPERTY(BlueprintReadOnly, Transient, Category = "KillFeed", meta = (BindWidgetAnim))
+	class UWidgetAnimation* ShowKillFeedAnimation;
+
+	UPROPERTY(BlueprintReadOnly, Transient, Category = "KillFeed", meta = (BindWidgetAnim))
+	class UWidgetAnimation* DisappearKillFeedAnimation;
 
 
+	
+	
+public:
 
+	UFUNCTION()
+	void ShowKillFeed(FString SuspectName, FString VictimName);
 
+	UFUNCTION()
+	void ShowKillFeedWidgetAnimation();
 
-
-
+	UFUNCTION()
+	void DisappearKillFeedWidgetAnimation();
 	
 };
