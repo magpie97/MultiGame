@@ -10,6 +10,10 @@
 #include "Shoot/HUD/ChatSystem.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Shoot/PlayerController/ShooterPlayerController.h"
+#include "Shoot/HUD/KillFeed.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/BackgroundBlur.h"
+#include "Components/CanvasPanelSlot.h"
 
 
 AShooterHUD::AShooterHUD()
@@ -26,15 +30,11 @@ AShooterHUD::AShooterHUD()
 
 }
 
-
 void AShooterHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 	CheckUIObject();
-
-
 
 }
 
@@ -44,6 +44,20 @@ void AShooterHUD::Tick(float DeltaSeconds)
 
 
 	
+}
+
+bool AShooterHUD::IsNameStableForNetworking() const
+{
+	Super::IsNameStableForNetworking();
+
+	return false;
+}
+
+bool AShooterHUD::IsSupportedForNetworking() const
+{
+	Super::IsSupportedForNetworking();
+
+	return true;
 }
 
 // 캐릭터 상태 widget
@@ -134,6 +148,8 @@ void AShooterHUD::DrawCrosshair(UTexture2D* Texture, FVector2D ViewportSize)
 
 }
 
+
+
 TSharedPtr<class SWidget> AShooterHUD::GetChatInputTextObject()
 {
 
@@ -171,4 +187,89 @@ bool AShooterHUD::CreateUIObject()
 	}
 
 	return false;
+}
+
+void AShooterHUD::ShowKillFeedWidget(FString SuspectPlayerName, FString VictimPlayerName)
+{
+	PC = PC == nullptr ? GetOwningPlayerController() : PC;
+
+	if (PC && KillFeedClass)
+	{
+		class UKillFeed* KillFeed = CreateWidget<UKillFeed>(PC, KillFeedClass);
+
+		if (KillFeed)
+		{
+			KillFeed->ShowKillFeed(SuspectPlayerName, VictimPlayerName);
+
+			KillFeed->AddToViewport();
+
+			// 배열에 killfeed 위젯을 추가하여 겹치지 않게 표시함
+			for (UKillFeed* ArrayKillFeed : StackKillFeed)
+			{
+				if (ArrayKillFeed && ArrayKillFeed->BG_Blur)
+				{
+					UCanvasPanelSlot* CanvasPanelSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(ArrayKillFeed->BG_Blur);
+
+					if (CanvasPanelSlot)
+					{
+						FVector2D Position = CanvasPanelSlot->GetPosition();
+
+						FVector2D NewPosition(CanvasPanelSlot->GetPosition().X, Position.Y + CanvasPanelSlot->GetSize().Y); // -
+
+						CanvasPanelSlot->SetPosition(NewPosition);
+
+					}
+				}
+			}
+
+			StackKillFeed.Add(KillFeed);
+
+			// 몇초 동안 표시할 Kill Feed Widget 
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDelegate;
+			
+			KillFeed->ShowKillFeedWidgetAnimation();	// 애니메이션 보이기 
+
+			TimerDelegate.BindUFunction(this, FName("DisappearKillFeedWidget"), KillFeed);  // default DisappearKillFeedWidget
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, KillFeedTimer, false);
+			
+
+
+
+		}
+	}
+}
+
+void AShooterHUD::DisappearKillFeedWidget(UKillFeed* KillFeed)
+{
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDelegate;
+
+	if (KillFeed)
+	{
+		KillFeed->DisappearKillFeedWidgetAnimation();	// 애니메이션 사라지기
+
+		TimerDelegate.BindUFunction(this, FName("DisappearKillFeedWidgetFinished"), KillFeed);
+		GetWorldTimerManager().SetTimer(TimerHandle, TimerDelegate, DisappearKillFeedTimer, false);
+
+	}
+}
+
+void AShooterHUD::DisappearKillFeedWidgetFinished(UKillFeed* KillFeed)
+{
+	// 위젯을 지울때 텀을 두고 애니메이션 실행 후 지우는 함수 구현 필요
+	
+	if (KillFeed)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, TEXT("Removed KillFeed Widget"));
+
+		KillFeed->RemoveFromParent();
+		
+		// 배열에 위젯이 삭제가 이루어 지지 않아 배열에 요소를 다시 삭제 하는 방법 선택
+		StackKillFeed.Remove(KillFeed);
+
+		
+	}
+
+
 }

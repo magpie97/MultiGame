@@ -43,6 +43,15 @@ class SHOOT_API AShooterHUD : public AHUD
 private:
 	AShooterHUD();
 
+	// FNetGUIDCache 에러가 나와서 작성해야 할 함수
+
+		/** IsNameStableForNetworking means an object can be referred to its path name (relative to outer) over the network */
+	virtual bool IsNameStableForNetworking() const override;
+
+	/** IsSupportedForNetworking means an object can be referenced over the network */
+	virtual bool IsSupportedForNetworking() const override;
+
+
 
 
 public:
@@ -90,6 +99,49 @@ public:
 
 	UFUNCTION()
 	void AddPrepareToAttack();
+
+	UPROPERTY()
+	class APlayerController* PC;
+
+
+
+
+
+
+
+
+
+
+	/* KillFeed 추가*/
+private:
+	UPROPERTY(EditAnywhere, Category = "KillFeedWidget")
+	TSubclassOf<class UKillFeed> KillFeedClass;
+
+	// 6.sec
+	UPROPERTY(EditAnywhere, Category = "KillFeedWidget")
+	float KillFeedTimer = 6.f;
+
+	// 위젯 사라지기 까지 텀 1.sec
+	UPROPERTY(EditAnywhere, Category = "KillFeedWidget")
+	float DisappearKillFeedTimer = 1.f;
+
+	// 킬 피드 위젯을 배열에 저장하여 겹치지 않게 보여줄 컨테이너
+	UPROPERTY()
+	TArray<UKillFeed*> StackKillFeed;
+
+
+
+
+public:
+	UFUNCTION()
+	void ShowKillFeedWidget(FString SuspectPlayerName, FString VictimPlayerName);
+
+	UFUNCTION()
+	void DisappearKillFeedWidget(UKillFeed* KillFeed);
+
+	UFUNCTION()
+	void DisappearKillFeedWidgetFinished(UKillFeed* KillFeed);
+
 
 
 

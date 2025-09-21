@@ -691,3 +691,51 @@ void AShooterPlayerController::ServerToClientSendMessage_Implementation(const FS
 	hud->AddChatMessage(*Message);  // dereference
 	
 }
+
+void AShooterPlayerController::Announcement_KillFeed(APlayerState* SuspectUserState, APlayerState* VictimUserState)
+{
+	ClientAnnouncement_KillFeed(SuspectUserState, VictimUserState);
+
+}
+
+void AShooterPlayerController::ClientAnnouncement_KillFeed_Implementation(APlayerState* SuspectUserState, APlayerState* VictimUserState)
+{
+	class APlayerState* PS = GetPlayerState<APlayerState>();
+
+	if (PS && SuspectUserState && VictimUserState)
+	{
+		ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
+
+		if (ShooterHUD)
+		{
+			if (PS == SuspectUserState && VictimUserState != PS)
+			{
+				ShooterHUD->ShowKillFeedWidget(PS->GetPlayerName(), VictimUserState->GetPlayerName());
+				return;
+			}
+			
+			if (PS == VictimUserState && SuspectUserState != PS)
+			{
+				ShooterHUD->ShowKillFeedWidget(SuspectUserState->GetPlayerName(), PS->GetPlayerName());
+				return;
+			}
+
+			// test
+			if (SuspectUserState == VictimUserState && SuspectUserState == PS)
+			{
+				ShooterHUD->ShowKillFeedWidget(PS->GetPlayerName(), "Kill My Self");
+				return;
+			}
+
+			//// test
+			//if (SuspectUserState == VictimUserState && SuspectUserState != PS)
+			//{
+			//	ShooterHUD->ShowKillFeedWidget(SuspectUserState->GetPlayerName(), "Them My Self");
+			//	return;
+			//}
+
+			ShooterHUD->ShowKillFeedWidget(SuspectUserState->GetPlayerName(), VictimUserState->GetPlayerName());
+
+		}
+	}
+}

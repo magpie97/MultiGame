@@ -176,6 +176,20 @@ void AShootingGameMode::PlayerDead(class ABaseCharacter* DeadCharacter, class AS
 		DeadCharacter->Dead();
 
 	}
+
+
+	// kill feed section   
+	// 이 번복자는 level안에 있는 모든 컨트롤러를 가진 user의 killfeed를 사용하기 위한 작업
+	for (FConstPlayerControllerIterator CPCI = GetWorld()->GetPlayerControllerIterator(); CPCI; ++CPCI)
+	{
+		AShooterPlayerController* PlayerController = Cast<AShooterPlayerController>(*CPCI);
+		if (PlayerController && AttackerPlayerState && VictimPlayerState)
+		{
+			PlayerController->Announcement_KillFeed(AttackerPlayerState, VictimPlayerState);
+
+
+		}
+	}
 }
 
 void AShootingGameMode::PlayerRespawn(ACharacter* DeadCharacter, AController* DeadController)
