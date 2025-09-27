@@ -70,6 +70,8 @@ public:
 
 
 
+
+
 	// 변수 섹션
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Propertie")
@@ -110,7 +112,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Damage)
 	float Damage = 0.f;
 
-
+	UPROPERTY(EditAnywhere, Category = Damage)
+	float HeadShotDamage = 0.f;
 
 
 
@@ -227,7 +230,7 @@ public:
 	// 캐릭터가 죽으면 무기를 떨어뜨린다
 	void Dropped();
 
-
+	
 
 
 	// FORCEINLINE 섹션
@@ -243,6 +246,7 @@ public:
 	// 총알이 0개
 	bool IsEmpty();
 	FORCEINLINE float GetDamage() const { return Damage; }
+	FORCEINLINE float GetHeadShotDamage() const { return HeadShotDamage; }
 	FORCEINLINE EWeaponTypes GetWeaponTypes() const { return WeaponTypes; }
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMagCapacity() const { return MagCapacity; }

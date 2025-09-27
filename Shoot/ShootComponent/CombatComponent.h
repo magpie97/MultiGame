@@ -326,7 +326,7 @@ public:
 
 
 
-	// 쓰루
+	// 수류탄 던지기 
 	UFUNCTION()
 	void ThrowGrenade(bool bGrenade);
 
@@ -338,6 +338,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerGrenadeStart(const FVector_NetQuantize& Target);
+
+	/*UFUNCTION(NetMulticast, Reliable)
+	void MultiGrenadeStart(const FVector_NetQuantize& Target);*/
 
 	UFUNCTION(BlueprintCallable)
 	void GrenadeFinished();

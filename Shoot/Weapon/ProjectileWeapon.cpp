@@ -42,7 +42,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 
 		if (bUseServerSideRewind)
 		{
-			// camera shake 기능 추가 필요  현제 컴벳 클래스에 적용했음
+			// camera shake 기능 추가 필요  (현재 Combat 클래스에 적용했음)
 
 
 			if (InstigatorPawn->HasAuthority()) // 서버에서만 실행

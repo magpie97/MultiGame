@@ -83,16 +83,12 @@ void AProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector&
 {
 	// 수류탄 팅기는 소리
 
-		// TODO : grenade 속도에 따른 바운스 사운드 기능 구현 필요
-
-
 	if (BounceSound)
 	{
 		FVector Velocity = this->GetVelocity();
 		Speed = Velocity.Size();
 		if (Speed > MaxSpeed) // 0 > 300.f
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Grenade Speed : %f"), Speed);
 			UGameplayStatics::PlaySoundAtLocation(this, BounceSound, GetActorLocation());
 
 

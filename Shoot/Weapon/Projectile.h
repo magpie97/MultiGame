@@ -81,7 +81,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Damage")
 	float Damage = 0.f; // 0.f
 
-	//UPROPERTY(Replicated, EditAnywhere)
+	// 머리 hit damage
+	UPROPERTY(EditAnywhere, Category = "Damage")
+	float HeadShotDamage = 0.f;
+
 	bool bUseServerSideRewind = false;
 
 	// 시작 추적 위치

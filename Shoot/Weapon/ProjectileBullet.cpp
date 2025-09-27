@@ -52,13 +52,15 @@ void AProjectileBullet::OnComponentHit(UPrimitiveComponent* HitComp, AActor* Oth
 		{
 			if (OwnerCharacter->HasAuthority() && !bUseServerSideRewind) // 서버, ssr가 아닌경우
 			{
+				float HeadShot = Hit.BoneName.ToString() == FString("head") ? HeadShotDamage * 4.f : Damage;
+
+
+
 				UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
 
 				Super::OnComponentHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
 
 				return;
-
-				
 
 			}
 

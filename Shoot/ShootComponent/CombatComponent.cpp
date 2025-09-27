@@ -101,6 +101,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		HitTarget = HitResult.ImpactPoint;
 
 		SetHUDCrosshairs(DeltaTime);
+		
 		InterpFOV(DeltaTime);
 
 		InterpCamera(DeltaTime);
@@ -703,6 +704,8 @@ void UCombatComponent::ThrowGrenade(bool bGrenade)
 		UpdateCarriedGrenade();
 
 	}
+
+
 }
 
 void UCombatComponent::ServerThrowGrenade_Implementation()
@@ -751,7 +754,6 @@ void UCombatComponent::GrenadeStart()
 	{
 		ServerGrenadeStart(HitTarget);
 	}
-	
 }
 
 void UCombatComponent::ServerGrenadeStart_Implementation(const FVector_NetQuantize& Target)
@@ -759,7 +761,6 @@ void UCombatComponent::ServerGrenadeStart_Implementation(const FVector_NetQuanti
 	if (Character && Character->GetGrenadeMesh() && GrenadeClass)
 	{
 		// 캐릭터 메시
-
 		FVector StartLocation = Character->GetGrenadeMesh()->GetComponentLocation();
 		FVector ToTarget = Target - StartLocation;
 
@@ -767,10 +768,13 @@ void UCombatComponent::ServerGrenadeStart_Implementation(const FVector_NetQuanti
 		ActorSpawnParameters.Owner = Character;  // getowner 는 액터가 소유한 액터의 포인터를 가져온다
 		ActorSpawnParameters.Instigator = Character;
 
-		GetWorld()->SpawnActor<AProjectile>(GrenadeClass, StartLocation, ToTarget.Rotation(), ActorSpawnParameters);
+		UWorld* world = GetWorld();
 
+		if (world)
+		{
+			world->SpawnActor<AProjectile>(GrenadeClass, StartLocation, ToTarget.Rotation(), ActorSpawnParameters);
+		}
 	}
-
 }
 
 bool UCombatComponent::IsGrenadeEmpty()
