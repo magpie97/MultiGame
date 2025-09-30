@@ -753,12 +753,14 @@ void UCombatComponent::GrenadeStart()
 	if (Character && Character->IsLocallyControlled())
 	{
 		ServerGrenadeStart(HitTarget);
+
+		//LocalGrenade(HitTarget);
 	}
 }
 
 void UCombatComponent::ServerGrenadeStart_Implementation(const FVector_NetQuantize& Target)
 {
-	if (Character && Character->GetGrenadeMesh() && GrenadeClass)
+	if (Character && Character->GetGrenadeMesh() && GrenadeClass /*&& /*Character->HasAuthority()*//*test*/)
 	{
 		// 캐릭터 메시
 		FVector StartLocation = Character->GetGrenadeMesh()->GetComponentLocation();
@@ -772,10 +774,34 @@ void UCombatComponent::ServerGrenadeStart_Implementation(const FVector_NetQuanti
 
 		if (world)
 		{
+			// debug
+			GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, TEXT("SpawnActor"));
+
 			world->SpawnActor<AProjectile>(GrenadeClass, StartLocation, ToTarget.Rotation(), ActorSpawnParameters);
 		}
 	}
+
+
 }
+
+//test multi cast
+//void UCombatComponent::MultiGrenadeStart_Implementation(const FVector_NetQuantize& Target)
+//{
+//	// test code
+//	//if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;
+//	//LocalGrenade(Target);
+//
+//	
+//
+//
+//}
+
+//void UCombatComponent::LocalGrenade(const FVector_NetQuantize& Target)
+//{
+//	
+//
+//
+//}
 
 bool UCombatComponent::IsGrenadeEmpty()
 {

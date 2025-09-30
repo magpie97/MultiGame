@@ -56,7 +56,7 @@ void AProjectileBullet::OnComponentHit(UPrimitiveComponent* HitComp, AActor* Oth
 
 
 
-				UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+				UGameplayStatics::ApplyDamage(OtherActor, HeadShot, OwnerController, this, UDamageType::StaticClass());
 
 				Super::OnComponentHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
 

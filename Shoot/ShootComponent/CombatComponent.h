@@ -333,6 +333,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerThrowGrenade();
 
+	// anim 블프에서 사용중인 함수
 	UFUNCTION(BlueprintCallable)
 	void GrenadeStart();
 
@@ -341,6 +342,9 @@ public:
 
 	/*UFUNCTION(NetMulticast, Reliable)
 	void MultiGrenadeStart(const FVector_NetQuantize& Target);*/
+
+	/*UFUNCTION()
+	void LocalGrenade(const FVector_NetQuantize& Target);*/
 
 	UFUNCTION(BlueprintCallable)
 	void GrenadeFinished();
