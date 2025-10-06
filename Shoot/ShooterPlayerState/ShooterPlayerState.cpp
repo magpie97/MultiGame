@@ -88,6 +88,7 @@ void AShooterPlayerState::AddToDeathScore(uint32 DeathScoreAmount)
 
 void AShooterPlayerState::ShowPing()
 {
+	//test
 	GEngine->AddOnScreenDebugMessage(4, 1.f, FColor::White, FString::FromInt(GetPing() * 4));
 	
 

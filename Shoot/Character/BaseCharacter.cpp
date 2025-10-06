@@ -214,6 +214,8 @@ void ABaseCharacter::BeginPlay()
 
 	UpdateHUDHealth();
 
+	
+
 	/*if (PhysicalAnimationComponent)
 	{
 		PhysicalAnimationComponent->SetSkeletalMeshComponent(GetMesh());
@@ -380,6 +382,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 	//deltatime = DeltaTime; test
 	PollInit();
 
+	
 	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
 	{
 		// 매 프레임 마다 실행 시켜야 한다
@@ -767,7 +770,7 @@ void ABaseCharacter::OnRep_Health()
 {
 	UpdateHUDHealth();
 
-	PlayHitReactMontage();
+	//PlayHitReactMontage();  임시 주석
 
 }
 
@@ -991,12 +994,16 @@ void ABaseCharacter::ApplyDamage(AActor* DamagedActor, float Damage, const UDama
 	GameMode = GameMode == nullptr ? GetWorld()->GetAuthGameMode<AShootingGameMode>() : GameMode;
 	if (bDead || GameMode == nullptr) return;
 
-	// 현재 health 가 0 밑으로 내려가지 않도록 클램핑 한다
-	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
+	if (CurrentHealth)
+	{
+		// 현재 health 가 0 밑으로 내려가지 않도록 클램핑 한다
+		CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
 
-	UpdateHUDHealth();
+		UpdateHUDHealth();
 
-	PlayHitReactMontage();
+	}
+	
+	//PlayHitReactMontage();  // 임시 주석
 
 	// 게임모드  관련 코드
 	// 캐릭터가 죽으면 다시 리스폰 시키거나 게임 전체 스코어를 카운팅, 점수를 처리하기위해 작성함
@@ -1011,7 +1018,36 @@ void ABaseCharacter::ApplyDamage(AActor* DamagedActor, float Damage, const UDama
 			GameMode->PlayerDead(this, ShooterPlayerController, AttackerPlayerController);
 		}
 	}
+	else if (bIsAutoHeal) // 자가회복 
+	{
+		GetWorld()->GetTimerManager().SetTimer(SelfHealingTime, this, &ABaseCharacter::AutoHealingTime, AutoHealTime, true, AutoHealDelay);
+	}
 }
+
+void ABaseCharacter::AutoHealingTime()
+{
+	if (IsFullHealth())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(SelfHealingTime);
+	}
+	else
+	{
+		CurrentHealth = FMath::Clamp(CurrentHealth + AutoHealValue, 1.f, MaxHealth);
+
+		UpdateHUDHealth();
+
+	}
+}
+
+bool ABaseCharacter::IsFullHealth()
+{
+	//bIsHealing =  CurrentHealth == MaxHealth ?  true : false;
+
+	bIsAutoHeal = FMath::IsNearlyEqual(CurrentHealth, MaxHealth);
+
+	return bIsAutoHeal;
+}
+
 
 void ABaseCharacter::UpdateHUDHealth()
 {

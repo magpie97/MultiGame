@@ -208,12 +208,36 @@ public:
 	/*
 		플레이어의 채력 관리
 	*/
+	FTimerHandle SelfHealingTime;
+
 	UPROPERTY(EditAnywhere, Category = "Player State")
 	float MaxHealth = 100.f;
 	
 	// 현재 체력을 복사할것
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Health, Category = "Player State")
 	float CurrentHealth = 100.f;
+
+	UPROPERTY(EditAnywhere, Category = "Player State")
+	bool bIsAutoHeal = false;
+
+	// 1 hp 회복
+	UPROPERTY(EditAnywhere, Category = "Player State")
+	float AutoHealValue = 0.f;
+
+	// 5초 뒤 회복
+	UPROPERTY(EditAnywhere, Category = "Player State")
+	float AutoHealTime = 0.f;
+
+	// 5초 딜레이
+	UPROPERTY(EditAnywhere, Category = "Player State")
+	float AutoHealDelay = 0.f;
+
+	UFUNCTION()
+	void AutoHealingTime();
+
+	UFUNCTION()
+	bool IsFullHealth();
+
 
 
 

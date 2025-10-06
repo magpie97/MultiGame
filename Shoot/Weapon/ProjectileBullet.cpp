@@ -52,7 +52,16 @@ void AProjectileBullet::OnComponentHit(UPrimitiveComponent* HitComp, AActor* Oth
 		{
 			if (OwnerCharacter->HasAuthority() && !bUseServerSideRewind) // 서버, ssr가 아닌경우
 			{
-				float HeadShot = Hit.BoneName.ToString() == FString("head") ? HeadShotDamage * 4.f : Damage;
+
+				// client head shot not work. %%%
+				float HeadShot = Hit.BoneName.ToString() == FString("head") ? HeadShotDamage : Damage;
+
+				//test debug
+				if (Hit.bBlockingHit)
+				{
+					GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Red, FString::Printf(TEXT("Hit Body Bone Name : %s"), *Hit.BoneName.ToString()));
+
+				}
 
 
 

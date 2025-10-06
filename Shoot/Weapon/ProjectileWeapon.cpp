@@ -59,7 +59,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				{
 					SpawnProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
 					SpawnProjectile->bUseServerSideRewind = true;
-
+					//SpawnProjectile->HeadShotDamage = HeadShotDamage; // test
 				}
 			}
 			else   // 클라이언트 ssr 사용
@@ -68,7 +68,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				SpawnProjectile->bUseServerSideRewind = true;
 				SpawnProjectile->TraceStart = SocketTransform.GetLocation();
 				SpawnProjectile->InitVelocity = SpawnProjectile->GetActorForwardVector() * SpawnProjectile->InitSpeed;
-				
+				//SpawnProjectile->HeadShotDamage = HeadShotDamage; // test
 			}
 		}
 		else

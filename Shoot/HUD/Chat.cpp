@@ -29,10 +29,12 @@ void UChat::NativeConstruct()
 		class AShooterPlayerController* PlayerController = Cast<AShooterPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 		if (PlayerController == nullptr) return;
 
-		// 실 사용중 
+		// 사용중 
 		ChatInput->OnTextCommitted.AddDynamic(this, &UChat::OnChatTextCommitted);
 
-		// test
+		FLinearColor MyTextColor(1.0f, 0.07f, 0.f);
+
+
 		ChatInput->SetUserFocus(PlayerController);
 	}
 

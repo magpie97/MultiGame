@@ -10,8 +10,27 @@
  * 
  */
 
-//class UTextBlock;
-//class UImage;
+class UBackgroundBlur;
+class UHorizontalBox;
+class UTextBlock;
+class UImage;
+
+//USTRUCT(BlueprintType)
+//struct DieWhatForImageStruct
+//{
+//	GENERATED_BODY()
+//
+//	UPROPERTY()
+//	UImage* WeaponImage;
+//
+//	UPROPERTY()
+//	UImage* GrenadeImage;
+//
+//	UPROPERTY()
+//	UImage* KillMySelfImage;
+//
+//};
+
 
 
 UCLASS()
@@ -21,17 +40,25 @@ class SHOOT_API UKillFeed : public UUserWidget
 
 public:
 
-	UPROPERTY()
-	class UBackgroundBlur* BG_Blur;
 
 	UPROPERTY()
-	class UHorizontalBox* KillFeed_HorizontalBox;
+	UBackgroundBlur* BG_Blur;
 
 	UPROPERTY()
-	class UTextBlock* SuspectUserName_TextBlock;
+	UHorizontalBox* KillFeed_HorizontalBox;
 
 	UPROPERTY()
-	class UTextBlock* VictimUserName_TextBlock;
+	UTextBlock* SuspectUserName_TextBlock;
+
+	UPROPERTY()
+	UTextBlock* VictimUserName_TextBlock;
+
+	UPROPERTY()
+	UImage* DieWhatFor_Image;
+
+
+
+
 	
 	// Animations
 	UPROPERTY(BlueprintReadOnly, Transient, Category = "KillFeed", meta = (BindWidgetAnim))
@@ -46,7 +73,7 @@ public:
 public:
 
 	UFUNCTION()
-	void ShowKillFeed(FString SuspectName, FString VictimName);
+	void ShowKillFeed(FString SuspectName/*, UImage* Image*/, FString VictimName);
 
 	UFUNCTION()
 	void ShowKillFeedWidgetAnimation();

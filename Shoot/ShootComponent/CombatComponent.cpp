@@ -774,9 +774,14 @@ void UCombatComponent::ServerGrenadeStart_Implementation(const FVector_NetQuanti
 
 		if (world)
 		{
-			// debug
-			GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, TEXT("SpawnActor"));
+			//test code
+			if (!Character->HasAuthority())
+			{
+				// debug
+				GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, TEXT("SpawnActor"));
 
+			}
+			
 			world->SpawnActor<AProjectile>(GrenadeClass, StartLocation, ToTarget.Rotation(), ActorSpawnParameters);
 		}
 	}

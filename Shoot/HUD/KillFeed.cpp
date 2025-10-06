@@ -10,9 +10,12 @@
 
 
 
-void UKillFeed::ShowKillFeed(FString SuspectName, FString VictimName)
+void UKillFeed::ShowKillFeed(FString SuspectName/*, UImage Image*/, FString VictimName)
 {
 	FString SuspectUserName = FString::Printf(TEXT("%s"), *SuspectName);
+
+
+
 	FString VictimUserName = FString::Printf(TEXT("%s"), *VictimName);
 
 	bool IsValid = KillFeed_HorizontalBox && SuspectUserName_TextBlock && VictimUserName_TextBlock && BG_Blur/* && ShowKillFeedAnimation && DisappearKillFeedAnimation*/;

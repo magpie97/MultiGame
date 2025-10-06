@@ -595,7 +595,7 @@ void AShooterPlayerController::SendMessage(const FText& Text)
 
 	if (GameInstance)
 	{
-		// 유저 이름을 못가져옴  %%%%
+		// 유저 이름을 못가져옴 :  test 후 가져오는걸 확인 했음 
 		FString UserName = GameInstance->GetUserName();
 
 		//UE_LOG(LogTemp, Warning, TEXT("UserName is (address) : %s"), &UserName);
@@ -603,7 +603,11 @@ void AShooterPlayerController::SendMessage(const FText& Text)
 
 		//GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Blue, FString::Printf(TEXT("T_UserName : %s"), *UserName));
 
-		FString Message = FString::Printf(TEXT("%s: %s"), *UserName, *Text.ToString());
+		//test
+
+
+		FString Message = FString::Printf(TEXT("[%s]: %s"), *UserName, *Text.ToString());
+
 
 
 		
@@ -708,31 +712,33 @@ void AShooterPlayerController::ClientAnnouncement_KillFeed_Implementation(APlaye
 
 		if (ShooterHUD)
 		{
+			// 공격자가 나 일때
 			if (PS == SuspectUserState && VictimUserState != PS)
 			{
 				ShooterHUD->ShowKillFeedWidget(PS->GetPlayerName(), VictimUserState->GetPlayerName());
 				return;
 			}
 			
+			// 피해자가 나 일때
 			if (PS == VictimUserState && SuspectUserState != PS)
 			{
 				ShooterHUD->ShowKillFeedWidget(SuspectUserState->GetPlayerName(), PS->GetPlayerName());
 				return;
 			}
 
-			// test
+			// 공격자 와 피해자가 나 일때 
 			if (SuspectUserState == VictimUserState && SuspectUserState == PS)
 			{
 				ShooterHUD->ShowKillFeedWidget(PS->GetPlayerName(), "Kill My Self");
 				return;
 			}
 
-			//// test
-			//if (SuspectUserState == VictimUserState && SuspectUserState != PS)
-			//{
-			//	ShooterHUD->ShowKillFeedWidget(SuspectUserState->GetPlayerName(), "Them My Self");
-			//	return;
-			//}
+			// 굳이 필요 없을듯 하다
+			/*if (SuspectUserState == VictimUserState && SuspectUserState != PS)
+			{
+				ShooterHUD->ShowKillFeedWidget(SuspectUserState->GetPlayerName(), "Them Kill Self");
+				return;
+			}*/
 
 			ShooterHUD->ShowKillFeedWidget(SuspectUserState->GetPlayerName(), VictimUserState->GetPlayerName());
 

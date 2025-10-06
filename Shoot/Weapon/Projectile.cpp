@@ -25,8 +25,8 @@ AProjectile::AProjectile()
 	bReplicates = true;
 
 	// test set fuc  쓰지말것 에러남
-	//SetReplicates(true);
-	SetReplicateMovement(true);
+	//SetReplicates(true); 사용 안함
+	//SetReplicateMovement(true); test 주석
 
 	//ScenRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	//SetRootComponent(ScenRoot);  지우지 말것
@@ -60,7 +60,7 @@ AProjectile::AProjectile()
 	CollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	CollisionSphere->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECollisionResponse::ECR_Block);
 
-	CollisionSphere->SetIsReplicated(true);
+	//CollisionSphere->SetIsReplicated(true);
 	
 
 
