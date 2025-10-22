@@ -12,6 +12,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UBoxComponent;
+class UAnimMontage;
 
 UCLASS()
 class SHOOT_API ABaseCharacter : public ACharacter
@@ -55,7 +56,6 @@ private:
 
 
 
-public:
 
 
 
@@ -147,7 +147,7 @@ public:   // default 원래 없었음
 public:
 
 	/*
-		애니메이션 섹션
+		몽타주 섹션
 	*/
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
@@ -155,23 +155,25 @@ public:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* HitReactMontage;
 
-	// 캐릭터가 죽는 애니메이션
+	// 캐릭터가 죽는 몽타주
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* DeadMontage;
 
-	// Rifle 재장전 애니메이션
+	// Rifle 재장전 몽타주
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* ReloadMontage;
 
-
-
-	// 수류탄 홀드
+	// 수류탄 홀드 몽타주
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* ThrowGrenadeHoldMontage;
 
-	// 수류탄 던지기 애니메이션
+	// 수류탄 던지기 몽타주
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* ThrowGrenadeMontage;
+
+	// 캐릭터 슬라이딩 몽타주
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* SlidingMontage;  //test
 
 
 
@@ -208,7 +210,11 @@ public:
 	/*
 		플레이어의 채력 관리
 	*/
-	FTimerHandle SelfHealingTime;
+	// 채력이 줄어든 시점부터 딜레이 시간
+	FTimerHandle AutoHealDelayHandle;
+
+	// 체력이 줄어든 시점에 힐링 시간
+	FTimerHandle AutoHealTimeHandle;
 
 	UPROPERTY(EditAnywhere, Category = "Player State")
 	float MaxHealth = 100.f;
@@ -220,23 +226,45 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Player State")
 	bool bIsAutoHeal = false;
 
-	// 1 hp 회복
+	// hp 회복
 	UPROPERTY(EditAnywhere, Category = "Player State")
 	float AutoHealValue = 0.f;
 
+	// 맞은 직후 실행 시간
+	UPROPERTY(EditAnywhere, Category = "Player State")
+	float AfterHit = 0.f;
+
 	// 5초 뒤 회복
 	UPROPERTY(EditAnywhere, Category = "Player State")
-	float AutoHealTime = 0.f;
+	float AutoHealDelayTime = 0.f;
 
-	// 5초 딜레이
+	// 5초 반복 회복 딜레이
 	UPROPERTY(EditAnywhere, Category = "Player State")
-	float AutoHealDelay = 0.f;
+	float AutoHealTime = 0.f;
 
 	UFUNCTION()
 	void AutoHealingTime();
 
 	UFUNCTION()
 	bool IsFullHealth();
+
+	UFUNCTION()
+	void AutoHealingDelay();
+
+
+
+	// 체력 부족 및 제압 화면
+	UPROPERTY(EditAnywhere, Category = "DOF&Chromatic")
+	float DOFInterpSpeed = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "DOF&Chromatic")
+	float UpdateDOFValue = 10000.f;
+
+	UPROPERTY(EditAnywhere, Category = "DOF&Chromatic")
+	float UpdateChromaticValue = 0.f;
+
+	UFUNCTION()
+	void LowHealthEffect(float DeltaTime);
 
 
 
@@ -398,10 +426,12 @@ protected:
 	void OnRep_Health();
 
 
-
 	/*
 		Damage 처리 할 함수
 	*/
+	UPROPERTY()
+	bool bHit = false;
+
 	UFUNCTION()
 	void ApplyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
@@ -416,8 +446,7 @@ protected:
 	void PollInit();
 
 
-
-
+	
 
 
 public:
@@ -447,6 +476,9 @@ public:
 	UFUNCTION()
 	float CalculateSpeed();
 
+
+
+
 	// sprint
 	UFUNCTION()
 	void SprintButtonPressed();
@@ -465,6 +497,20 @@ public:
 
 	UPROPERTY()
 	bool bGrenadeHold = false;
+
+	UPROPERTY()
+	bool bMoveForward = false;
+
+
+	// sliding
+
+	/*bool bSliding = false;
+
+	bool bIsSliding(bool Sliding);
+
+	void SlidingButtonPressed(bool Sliding);
+
+	void SlidingButtonReleased(bool Sliding);*/
 
 
 

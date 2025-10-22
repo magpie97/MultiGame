@@ -54,16 +54,14 @@ void AProjectileBullet::OnComponentHit(UPrimitiveComponent* HitComp, AActor* Oth
 			{
 
 				// client head shot not work. %%%
-				float HeadShot = Hit.BoneName.ToString() == FString("head") ? HeadShotDamage : Damage;
+				const float HeadShot = Hit.BoneName.ToString() == FString("head") ? HeadShotDamage : Damage;
 
-				//test debug
-				if (Hit.bBlockingHit)
+				//debug
+				/*if (Hit.bBlockingHit)
 				{
 					GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Red, FString::Printf(TEXT("Hit Body Bone Name : %s"), *Hit.BoneName.ToString()));
 
-				}
-
-
+				}*/
 
 				UGameplayStatics::ApplyDamage(OtherActor, HeadShot, OwnerController, this, UDamageType::StaticClass());
 
@@ -77,9 +75,6 @@ void AProjectileBullet::OnComponentHit(UPrimitiveComponent* HitComp, AActor* Oth
 			if (bUseServerSideRewind && OwnerCharacter->GetServerSideRewindComponent() && OwnerCharacter->IsLocallyControlled() && HitCharacter)
 			{
 				OwnerCharacter->GetServerSideRewindComponent()->ServerProjectileDamageRequest(HitCharacter, TraceStart, InitVelocity, OwnerController->GetServerTime() - OwnerController->SingleTripTime);
-
-				//debug
-				//UE_LOG(LogTemp, Warning, TEXT("ApplyDamage"));
 
 			}
 		}

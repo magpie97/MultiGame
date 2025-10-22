@@ -183,17 +183,6 @@ FServerSideRewindResult UServerSideRewindComponent::CheckProjectileHitBody(FServ
 	FHitResult HitResult;
 	if (PathResult.HitResult.bBlockingHit)
 	{
-		// 사용중
-		/*if (PathResult.HitResult.Component.IsValid())
-		{
-			UBoxComponent* Box = Cast<UBoxComponent>(PathResult.HitResult.Component);
-			if (Box)
-			{
-				DrawDebugBox(GetWorld(), Box->GetComponentLocation(), Box->GetScaledBoxExtent(), FQuat(Box->GetComponentRotation()), FColor::Red, false, 15.f);
-
-			}
-		}*/
-
 		// 콜리전 상태를 no collision 상태로 변경 
 		ResetBoxLocation(HitCharacter, ServerSideRewindSnapshot);
 
@@ -220,16 +209,6 @@ FServerSideRewindResult UServerSideRewindComponent::CheckProjectileHitBody(FServ
 
 		if (PathResult.HitResult.bBlockingHit)
 		{
-			// debug  사용중
-			/*if (PathResult.HitResult.Component.IsValid())
-			{
-				UBoxComponent* Box = Cast<UBoxComponent>(PathResult.HitResult.Component);
-				if (Box)
-				{
-					DrawDebugBox(GetWorld(), Box->GetComponentLocation(), Box->GetScaledBoxExtent(), FQuat(Box->GetComponentRotation()), FColor::Purple, false, 15.f);
-				}
-			}*/
-
 			// 콜리전 상태를 no collision 상태로 변경 
 			ResetBoxLocation(HitCharacter, ServerSideRewindSnapshot);
 
@@ -237,7 +216,6 @@ FServerSideRewindResult UServerSideRewindComponent::CheckProjectileHitBody(FServ
 
 			// chek, Hit 순서
 			return FServerSideRewindResult{ true, false };
-
 
 		}
 	}
@@ -347,9 +325,16 @@ void UServerSideRewindComponent::ServerProjectileDamageRequest_Implementation(AB
 {
 	FServerSideRewindResult CheckServerDamage = ProjectileServerSideRewind(HitCharacter, TraceStart, InitialVelocity, HitTime);
 
-	if (Character && HitCharacter && CheckServerDamage.bCheckHit)
+	if (Character && HitCharacter && CheckServerDamage.bCheckHit && Character->GetEquippedWeapon())
 	{
-		UGameplayStatics::ApplyDamage(HitCharacter, Character->GetEquippedWeapon()->GetDamage(), Character->Controller, Character->GetEquippedWeapon(), UDamageType::StaticClass());
+		// head shot 인지 비교 후  데미지 적용
+		const float Damage = CheckServerDamage.bHitHead ? Character->GetEquippedWeapon()->GetHeadShotDamage() : Character->GetEquippedWeapon()->GetDamage();
+		
+		// debug
+		//UE_LOG(LogTemp, Warning, TEXT("%f"), Damage);
+		//GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, TEXT("%f"), Damage);
+
+		UGameplayStatics::ApplyDamage(HitCharacter, Damage, Character->Controller, Character->GetEquippedWeapon(), UDamageType::StaticClass());
 
 	}
 

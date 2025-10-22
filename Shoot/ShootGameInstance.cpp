@@ -180,11 +180,6 @@ void UShootGameInstance::OnCreateSessionComplete(FName SessionName, bool Success
 		Menu->Teardown();
 	}
 
-	/*if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, TEXT("Hosting"));
-	}*/
-
 	// ServerTravel을 만들기위해 world를 null 체크 한다
 	UWorld* World = GetWorld();
 	if (!ensure(World != nullptr)) return;

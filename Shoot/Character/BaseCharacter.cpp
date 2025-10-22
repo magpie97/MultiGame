@@ -223,6 +223,7 @@ void ABaseCharacter::BeginPlay()
 		GetMesh()->SetAllBodiesBelowSimulatePhysics(FName("pelvis"), true, false);
 
 	}*/
+
 	
 	// 서버확인
 	if (HasAuthority())
@@ -275,14 +276,15 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void ABaseCharacter::MoveForward(float Value)
 {
-	//IsMovingForward = Value > 0.f;
-
 	// Controller check
 	if (Controller != nullptr && Value != 0)
 	{
+		//bMoveForward = Value > 0.f;
+
 		// actor forward vector cal
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
 		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
+
 		AddMovementInput(Direction, Value);
 
 	}
@@ -382,6 +384,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 	//deltatime = DeltaTime; test
 	PollInit();
 
+	LowHealthEffect(DeltaTime);
 	
 	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
 	{
@@ -871,7 +874,7 @@ void ABaseCharacter::PlayThrowGrenadeMontage()
 
 void ABaseCharacter::SprintButtonPressed()
 {
-	if (Combat)
+	if (Combat) 
 	{
 		Combat->SetSprint(true);
 	}
@@ -960,9 +963,6 @@ void ABaseCharacter::MulticastDead_Implementation()
 
 	// 피직스
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	//GetCapsuleComponent()->Deactivate();
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetSimulatePhysics(true);
 	GetCharacterMovement()->DisableMovement();// can't input w a s d Keys
@@ -989,6 +989,8 @@ void ABaseCharacter::DeadTimerFinished()
 
 void ABaseCharacter::ApplyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
+	
+
 	// 게임 실행중 게임모드의 포인터를 가져올때 GetAuthGameMode 함수를 사용
 // 멀티 게임에서 게임모드는 게임을 관리하는 관리자 역활하여 게임에서 중요한 데이터를 인증하는 권한을 가진다
 	GameMode = GameMode == nullptr ? GetWorld()->GetAuthGameMode<AShootingGameMode>() : GameMode;
@@ -999,16 +1001,27 @@ void ABaseCharacter::ApplyDamage(AActor* DamagedActor, float Damage, const UDama
 		// 현재 health 가 0 밑으로 내려가지 않도록 클램핑 한다
 		CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
 
+		bHit = true;
+
 		UpdateHUDHealth();
 
+		if (bIsAutoHeal && bHit) // 자가회복   test islocal
+		{
+			GetWorld()->GetTimerManager().SetTimer(AutoHealDelayHandle, this, &ABaseCharacter::AutoHealingTime, AfterHit);
+			//GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Blue, TEXT("Hit Timer"));
+		}
 	}
 	
 	//PlayHitReactMontage();  // 임시 주석
 
 	// 게임모드  관련 코드
-	// 캐릭터가 죽으면 다시 리스폰 시키거나 게임 전체 스코어를 카운팅, 점수를 처리하기위해 작성함
-	if (CurrentHealth == 0.f)
+	// 캐릭터가 죽으면 다시 리스폰 시키거나 게임 전체 스코어를 카운팅,     점수를 처리하기위해 작성함
+	if (/*CurrentHealth == */FMath::IsNearlyZero(CurrentHealth, 0.0000f))
 	{
+		// 힐링 시간 중지
+		//GetWorld()->GetTimerManager().ClearTimer(AutoHealTimeHandle);
+		GetWorld()->GetTimerManager().ClearTimer(AutoHealDelayHandle);
+		
 		// check
 		if (GameMode)
 		{
@@ -1018,17 +1031,23 @@ void ABaseCharacter::ApplyDamage(AActor* DamagedActor, float Damage, const UDama
 			GameMode->PlayerDead(this, ShooterPlayerController, AttackerPlayerController);
 		}
 	}
-	else if (bIsAutoHeal) // 자가회복 
-	{
-		GetWorld()->GetTimerManager().SetTimer(SelfHealingTime, this, &ABaseCharacter::AutoHealingTime, AutoHealTime, true, AutoHealDelay);
-	}
 }
 
 void ABaseCharacter::AutoHealingTime()
 {
+	
+	GetWorld()->GetTimerManager().SetTimer(AutoHealTimeHandle, this, &ABaseCharacter::AutoHealingDelay, AutoHealDelayTime, true);
+	GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Blue, TEXT("AutoHealingTime 5sec"));
+
+}
+
+void ABaseCharacter::AutoHealingDelay()
+{
 	if (IsFullHealth())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(SelfHealingTime);
+		GetWorld()->GetTimerManager().ClearTimer(AutoHealTimeHandle);
+
+		GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Red, TEXT("Full Health"));
 	}
 	else
 	{
@@ -1036,7 +1055,36 @@ void ABaseCharacter::AutoHealingTime()
 
 		UpdateHUDHealth();
 
+		GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Red, TEXT("Healding"));
+
 	}
+
+}
+
+void ABaseCharacter::LowHealthEffect(float DeltaTime)
+{
+	float HalfHealth = (MaxHealth * 30.f) / 100.f;
+
+	FPostProcessSettings& CameraDOF = FollowCamera->PostProcessSettings;
+
+	CameraDOF.bOverride_DepthOfFieldFocalDistance = true;		// DOF
+	CameraDOF.bOverride_ChromaticAberrationStartOffset = true;  // 색수차
+
+	// 전체 체력이 절반 이하라면 
+	// 값이 크면 클수록 깔끔해지고 낮을 수록 뿌예진다  최대 값은 10000 
+	if (CurrentHealth <= HalfHealth)
+	{
+		UpdateDOFValue = FMath::FInterpTo(UpdateDOFValue, 15.f, DeltaTime, 10.f);
+		UpdateChromaticValue = FMath::FInterpTo(UpdateChromaticValue, 5.f, DeltaTime, DOFInterpSpeed);
+	}
+	else
+	{
+		UpdateDOFValue = FMath::FInterpTo(UpdateDOFValue, 10000.f, DeltaTime, 10.f);
+		UpdateChromaticValue = FMath::FInterpTo(UpdateChromaticValue, 0.f, DeltaTime, DOFInterpSpeed);
+	}
+
+	CameraDOF.DepthOfFieldFocalDistance = UpdateDOFValue;
+	CameraDOF.SceneFringeIntensity = UpdateChromaticValue;
 }
 
 bool ABaseCharacter::IsFullHealth()
