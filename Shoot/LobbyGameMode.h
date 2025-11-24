@@ -35,10 +35,24 @@ public:
 
 	//=======================================
 	// 로비에서 사용할 변수		// test
-	uint16 CanJoinMaxNumber = 2;
+	uint16 CanJoinMaxNumber = 4;
 
 	// testing
 	FORCEINLINE uint16 GetNumberOfPlayers() { return NumberOfPlayers; }
 	//=======================================
+
+
+	FTimerHandle StartDelayHandle;
+
+	// 60 초
+	UPROPERTY(EditAnywhere, Category = "Start Delay Time")
+	float DelayTime = 60.f;
+
+
+	UFUNCTION()
+	void StartDelay();
+
+	UFUNCTION()
+	void TravelShootMap();
 
 };

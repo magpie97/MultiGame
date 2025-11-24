@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Shoot/ShootType/ShootType.h"
 #include "Shoot/ShootType/CombatState.h"
+#include "Components/AudioComponent.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -13,6 +14,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UBoxComponent;
 class UAnimMontage;
+class USoundCue;
 
 UCLASS()
 class SHOOT_API ABaseCharacter : public ACharacter
@@ -203,10 +205,6 @@ public:
 
 
 public:
-
-
-
-
 	/*
 		플레이어의 채력 관리
 	*/
@@ -251,7 +249,8 @@ public:
 	UFUNCTION()
 	void AutoHealingDelay();
 
-
+	UPROPERTY()
+	float HalfHealth = 0.f;
 
 	// 체력 부족 및 제압 화면
 	UPROPERTY(EditAnywhere, Category = "DOF&Chromatic")
@@ -263,8 +262,45 @@ public:
 	UPROPERTY(EditAnywhere, Category = "DOF&Chromatic")
 	float UpdateChromaticValue = 0.f;
 
+
+
+
+
+
+	// 카메라 효과로 처리함
 	UFUNCTION()
 	void LowHealthEffect(float DeltaTime);
+
+	UPROPERTY(EditAnywhere, Category = "HitCameraAction")
+	TSubclassOf<class UCameraShakeBase> HitCameraActionShake;
+
+	UPROPERTY(EditAnywhere, Category = "HealthSound")
+	class USoundCue* HitSound;
+
+	UFUNCTION()
+	void HitSoundPlay();
+
+	UFUNCTION(Server, Reliable)
+	void ServerHitSoundPlay();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiHitSoundPlay();
+
+
+
+
+
+
+	UPROPERTY(EditAnywhere, Category = "HealthSound")
+	class USoundCue* LowHealthSound;
+
+	UPROPERTY(EditAnywhere, Category = "HealthSound")
+	class USoundCue* NormalHealthSound;
+
+	UPROPERTY(VisibleAnywhere, Category = "HealthSound")
+	class UAudioComponent* AudioComponent;
+
+
 
 
 
@@ -294,13 +330,11 @@ public:
 
 
 
-private:
-
-	// physical animation 섹션
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	//class UPhysicalAnimationComponent* PhysicalAnimationComponent;
 
 
+public:
+
+	
 
 
 
@@ -429,8 +463,7 @@ protected:
 	/*
 		Damage 처리 할 함수
 	*/
-	UPROPERTY()
-	bool bHit = false;
+protected:
 
 	UFUNCTION()
 	void ApplyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
@@ -502,16 +535,6 @@ public:
 	bool bMoveForward = false;
 
 
-	// sliding
-
-	/*bool bSliding = false;
-
-	bool bIsSliding(bool Sliding);
-
-	void SlidingButtonPressed(bool Sliding);
-
-	void SlidingButtonReleased(bool Sliding);*/
-
 
 
 	// Dead
@@ -522,7 +545,6 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerDead();
 
-
 	// 캐릭터가 죽는 애니메이션을 서버와 클라이언트를 동기화   (클라이언트를 위한 작업)
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastDead();
@@ -530,29 +552,21 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USoundCue* DeadSound;
 
-	
 	// 재장전
 	UFUNCTION()
 	void ReloadButtonPressed();
 
 
-	/*
-		정보창 Tab key 유저 이름, 점수,,, 등등   %%% 아직 구현하지 않음  위젯은 만들어 둠
-	*/
-	UFUNCTION()
-	void InfoButtonPressed();
-
-	UFUNCTION()
-	void Info();
-
-
-
 
 public:
 
-	// hitreaction 섹션
-	UFUNCTION()
-	void PlayPhysicalAnimation();
+	//// hit 카메라 쉐이크
+	//UFUNCTION(Client, Reliable)
+	//void HitCameraAction();
+	//
+	//UFUNCTION(Server, Reliable)
+	//void ServerHitCameraAction();
+
 
 
 

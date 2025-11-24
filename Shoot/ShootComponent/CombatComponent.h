@@ -163,6 +163,9 @@ private:
 	UFUNCTION()
 	void OnRep_Aiming();
 
+	UPROPERTY(EditAnywhere, Category = "Aiming Sound")
+	class USoundCue* AimingSound;
+
 
 
 	UPROPERTY(Replicated, meta = (AllowPrivateAccess = "true"))

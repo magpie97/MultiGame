@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
+#include "Shoot/Character/BaseCharacter.h"
 
 #include "ShootingGameMode.generated.h"
 
@@ -41,6 +42,13 @@ public:
 
 
 
+
+
+
+
+
+
+
 	/*
 	* chat system
 	*/
@@ -71,6 +79,14 @@ public:
 	// 유저가 죽었다면 다시 생성하기위해 해당 캐릭터, 컨트롤러를 준다
 	virtual void PlayerRespawn(ACharacter* DeadCharacter, AController* DeadController);
 
+
+
+	virtual void PlayerKillStreak(AShooterPlayerController* AttackerPlayerController);
+
+	int32 KillStreakCount(AShooterPlayerController* AttackerPlayerController);
+
+
+
 	// 게임 시작 전 10초
 	UPROPERTY(EditDefaultsOnly)
 	float WaitTime = 5.f;	
@@ -84,17 +100,25 @@ public:
 	float WaitNextGameTime = 5.f;
 
 	// 게임 상태를 변경할 변수인 변수 0.f 초
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CountdownTime = 0.f;
 
 	// 0.f 초  begine 함수에서 0의 시간으로 초기화
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float LevelStartingTime = 0.f;
 
-	
 
 
+	// kill streak
+	FTimerHandle KillStreakTimerHandle;
 
+	UPROPERTY(EditAnywhere, Category = "KillStreakResetTime")
+	float ResetTime = 5.f;
+
+	UFUNCTION()
+	void ResetKillStreakScore();
+
+	float KillScore = 0;
 
 
 	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }

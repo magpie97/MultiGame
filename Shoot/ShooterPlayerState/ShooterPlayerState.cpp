@@ -39,11 +39,8 @@ void AShooterPlayerState::AddToScore(float ScoreAmount)
 		{
 			Controller->SetHUDKillScore(GetScore());
 
-
 		}
 	}
-
-	
 }
 
 // 서버에 복사
@@ -60,9 +57,6 @@ void AShooterPlayerState::OnRep_Score()
 		if (Controller)
 		{
 			Controller->SetHUDKillScore(GetScore());
-
-
-
 
 		}
 	}

@@ -21,9 +21,8 @@
 #include "Shoot/Weapon/ProjectileGrenade.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/Actor.h"
-
 #include "Camera/CameraShakeBase.h"
-
+#include "Components/AudioComponent.h" 
 
 
 UCombatComponent::UCombatComponent()
@@ -157,6 +156,8 @@ void UCombatComponent::SetAiming(bool bIsAiming)	// deltatime test
 	//  combatcomponenet에 있는 복사할 변수인 bAming에  setaiming함수 매개변수인 bIsAiming 을 set 시킨다
 	bAiming = bIsAiming;
 
+	
+
 	ServerSetAiming(bAiming);
 
 	//float deltatime = GetWorld()->GetDeltaSeconds();
@@ -167,11 +168,13 @@ void UCombatComponent::SetAiming(bool bIsAiming)	// deltatime test
 
 	if (Character && bAiming)
 	{
+		UGameplayStatics::PlaySound2D(this, AimingSound);
 		Character->GetCharacterMovement()->MaxWalkSpeed = AimWalkSpeed;	//test bIsAiming
 	
 	}
 	else
 	{
+
 		Character->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	}
 
@@ -288,6 +291,7 @@ void UCombatComponent::Fire()
 				break;
 			}
 		}
+
 		// 카메라 쉐이크
 		if (CameraShake)
 		{
@@ -398,6 +402,9 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 	if (Character && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		Character->PlayFireMontage(bAiming);
+
+		
+
 		EquippedWeapon->Fire(TraceHitTarget);
 
 	}
@@ -863,7 +870,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 	//=== 리펙토링
 	WeaponCarriedAmmo();
-	WeaponPickupSound();
+	//WeaponPickupSound();
 	ReloadWeapon();
 	//===
 

@@ -91,7 +91,7 @@ public:
 
 	// 세션을 만들었을때 메뉴 위젯의 메뉴 설정 섹션에 몇 가지 입력을 (게임 인원 수 등등..) 추가가 필요
 	// 공개 세션에 플레이어의 연결할 수 2명 4명 등등
-	int32 NumPublicConnections{ 2 }; // 최소 4명 부터 defualt 4
+	int32 NumPublicConnections{ 4 }; // 최소 4명 부터 defualt 4
 	FString MatchType{ TEXT("FreeForAll") }; // 옵션
 
 	// int32 NumPublicConnections, FString MatchType

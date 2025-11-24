@@ -20,12 +20,31 @@
 #include "Shoot/ShootGameInstance.h"
 #include "Shoot/HUD/ChatSystem.h"
 #include "Shoot/ShooterPlayerState/ShooterPlayerState.h"
+#include "Sound/SoundCue.h"
 
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
 
 
+AShooterPlayerController::AShooterPlayerController()
+{
+	// SoundCue'/Game/Blueprint/Sound/KillStreak/FirstKill_Trimmed.FirstKill_Trimmed'
+	//static ConstructorHelpers::FClassFinder<AShooterPlayerController> BPKillStreakFirstKillSound(TEXT("/Game/Blueprint/Sound/KillStreak/FirstKill_Trimmed"));
+	//if (BPKillStreakFirstKillSound.Succeeded() && BPKillStreakFirstKillSound.Class != nullptr)
+	//{
+	//	FirstKill = BPKillStreakFirstKillSound.Class;
+	//}
 
+	//// SoundCue'/Game/Blueprint/Sound/KillStreak/DoubleKill_Trimmed.DoubleKill_Trimmed'
+	//static ConstructorHelpers::FClassFinder<AShooterPlayerController> BPKillStreakDoubleKillSound(TEXT("/Game/Blueprint/Sound/KillStreak/DoubleKill_Trimmed"));
+	//if (BPKillStreakDoubleKillSound.Succeeded() && BPKillStreakDoubleKillSound.Class != nullptr)
+	//{
+	//	FirstKill = BPKillStreakDoubleKillSound.Class;
+	//}
+
+
+
+}
 
 void AShooterPlayerController::BeginPlay()
 {
@@ -36,17 +55,12 @@ void AShooterPlayerController::BeginPlay()
 
 	ServerCheckMatchState();
 
-	//GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Blue, TEXT("BeginePlay func called restart"));
-
-	//test
-
-	//bIsFocusable = true;
-
-	//UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 	// 게임 시작 후 채팅 하기전 마우스 포인터 끄기
 	SetShowMouseCursor(false);
 	SetInputMode(FInputModeGameOnly());
+
+
 
 }
 
@@ -92,17 +106,6 @@ void AShooterPlayerController::Tick(float DeltaTime)
 	CheckTimeSync(DeltaTime);
 
 	PollInit();
-
-
-
-	// ping test code
-	/*if (ShooterPlayerState != nullptr)
-	{
-		if (ShooterPlayerState)
-		{
-			GEngine->AddOnScreenDebugMessage(4, 1.f, FColor::White, FString::FromInt(ShooterPlayerState->ShowPing()));
-		}
-	}*/
 
 	// controller 클래스에 정의된걸 확인 했음
 	PlayerState = PlayerState == nullptr ? GetPlayerState<AShooterPlayerState>() : PlayerState;
@@ -253,6 +256,75 @@ void AShooterPlayerController::SetHUDDeathScore(int32 DeathScore)
 		bInitCharacterOverlay = true;
 		HUDDeathScore = DeathScore;
 	}
+}
+
+void AShooterPlayerController::ClientNotifyKillStreak_Implementation(int32 KillCount)
+{
+	// todo : 킬 카운트사운드를 5호 이후로 킬이 없다면 초기화
+
+	kc = KillCount;
+
+	switch (kc)
+	{
+		case 1:
+		{
+			UGameplayStatics::PlaySound2D(this, FirstKill);
+			UGameplayStatics::PlaySound2D(this, FirstKill_Voice);
+
+			GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Red, FString::Printf(TEXT("%d"), kc));
+			
+			break;
+		}
+		case 2:
+		{
+			UGameplayStatics::PlaySound2D(this, DoubleKill);
+			UGameplayStatics::PlaySound2D(this, DoubleKill_Voice);
+
+			break;
+		}
+		case 3:
+		{
+			UGameplayStatics::PlaySound2D(this, TripleKill);
+			UGameplayStatics::PlaySound2D(this, TripleKill_Voice);
+
+			break;
+		}
+		case 4:
+		{
+			UGameplayStatics::PlaySound2D(this, QuadraKill);
+			UGameplayStatics::PlaySound2D(this, QuadraKill_Voice);
+
+			break;
+		}
+		case 5:
+		{
+			UGameplayStatics::PlaySound2D(this, Pentakill);
+			UGameplayStatics::PlaySound2D(this, Pentakill_Voice);
+
+			break;
+		}
+	}
+
+	if (KillCount > 5 && Pentakill)
+	{
+		UGameplayStatics::PlaySound2D(this, Pentakill);
+		UGameplayStatics::PlaySound2D(this, Pentakill_Voice);
+	}
+
+	
+	// 2. 위젯 생성 및 표시 (로컬 화면에만 보임)
+	/*if (KillCount >= 3 && KillstreakWidgetClass)
+	{
+	
+	}*/
+
+
+}
+
+void AShooterPlayerController::ResetKillStreak()
+{
+	// todo 일정 시간 이후 킬이 없다면 다시 초기화 5 초 시간이면 충분
+
 }
 
 void AShooterPlayerController::SetHUDWeaponAmmo(int32 Ammo)
@@ -643,18 +715,6 @@ void AShooterPlayerController::FocusChatInputText()
 
 	SetInputMode(InputModeUIOnly); // 사용중
 
-	
-
-
-
-
-	// view port 락
-	/*FViewport* Viewport = GetWorld()->GetGameViewport()->Viewport;
-	if (Viewport)
-	{
-		Viewport->LockMouseToViewport(true);
-		Viewport->CaptureMouse(true);
-	}*/
 }
 
 void AShooterPlayerController::FocusGame()

@@ -215,8 +215,9 @@ void AShooterHUD::ShowKillFeedWidget(FString SuspectPlayerName, FString VictimPl
 						FVector2D Position = CanvasPanelSlot->GetPosition();
 
 						FVector2D NewPosition(CanvasPanelSlot->GetPosition().X, Position.Y + CanvasPanelSlot->GetSize().Y); // -
-
+						
 						CanvasPanelSlot->SetPosition(NewPosition);
+						
 
 					}
 				}

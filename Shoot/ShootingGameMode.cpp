@@ -10,8 +10,10 @@
 #include "Components/PanelWidget.h"
 #include "Shoot/GameState/ShooterGameState.h"
 #include "Shoot/HUD/ShooterHUD.h"
-#include "Shoot/PlayerController/ShooterPlayerController.h"
-#include "Shoot/Character/BaseCharacter.h"
+#include "Sound/SoundCue.h"
+
+#include "Components/AudioComponent.h"
+#include "Sound/SoundBase.h"
 
 namespace MatchState
 {
@@ -107,6 +109,11 @@ void AShootingGameMode::Tick(float DeltaSeconds)
 
 		}
 	}
+
+	// killstreak 기능
+
+
+
 }
 
 void AShootingGameMode::OnMatchStateSet()
@@ -152,9 +159,7 @@ void AShootingGameMode::PlayerDead(class ABaseCharacter* DeadCharacter, class AS
 
 	AShooterPlayerState* AttackerPlayerState = AttackerPlayerController ? Cast<AShooterPlayerState>(AttackerPlayerController->PlayerState) : nullptr;
 	AShooterPlayerState* VictimPlayerState = VictimPlayerController ? Cast<AShooterPlayerState>(VictimPlayerController->PlayerState) : nullptr;
-
 	AShooterGameState* ShooterGameState = GetGameState<AShooterGameState>();
-
 
 	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState && ShooterGameState)	// 공격자 상태와 피해자 상태가 같지 않을때
 	{
@@ -162,6 +167,10 @@ void AShootingGameMode::PlayerDead(class ABaseCharacter* DeadCharacter, class AS
 		AttackerPlayerState->AddToScore(1.f);
 		
 		ShooterGameState->UpdateHighScore(AttackerPlayerState);
+
+		// todo AttackerPlayerState 에 저장된 점수를 사용하여 PlayerKillStreak 함수에 적용 필요
+		PlayerKillStreak(AttackerPlayerController);  //test
+
 	}
 
 	if (VictimPlayerState && VictimPlayerState != AttackerPlayerState)
@@ -177,7 +186,6 @@ void AShootingGameMode::PlayerDead(class ABaseCharacter* DeadCharacter, class AS
 
 	}
 
-
 	// kill feed section   
 	// 이 번복자는 level안에 있는 모든 컨트롤러를 가진 user의 killfeed를 사용하기 위한 작업
 	for (FConstPlayerControllerIterator CPCI = GetWorld()->GetPlayerControllerIterator(); CPCI; ++CPCI)
@@ -187,9 +195,40 @@ void AShootingGameMode::PlayerDead(class ABaseCharacter* DeadCharacter, class AS
 		{
 			PlayerController->Announcement_KillFeed(AttackerPlayerState, VictimPlayerState);
 
-
 		}
 	}
+}
+
+void AShootingGameMode::PlayerKillStreak(AShooterPlayerController* AttackerPlayerController)
+{
+	int32 killcount = KillStreakCount(AttackerPlayerController);
+
+	AShooterPlayerController* PlayerController = Cast<AShooterPlayerController>(AttackerPlayerController);
+	if (PlayerController)
+	{
+		// todo : 공격자만 들리는 사운드 및 이팩트 위젯 표시 필요  (일단 사운드부터 처리하고 잘되는지 확인필요)
+		PlayerController->ClientNotifyKillStreak(killcount);
+
+	}
+}
+
+int32 AShootingGameMode::KillStreakCount(AShooterPlayerController* AttackerPlayerController)
+{
+	// 사용하는 코드 (만약 킬 초기화 못하면 킬만 하면 킬 이펙트 사운드만 들리게 수정해야할듯)
+	/*AShooterPlayerState* AttackerPlayerState = AttackerPlayerController ? Cast<AShooterPlayerState>(AttackerPlayerController->PlayerState) : nullptr;
+	float KillScore = AttackerPlayerState->GetScore();*/
+
+	GetWorld()->GetTimerManager().SetTimer(KillStreakTimerHandle, this, &AShootingGameMode::ResetKillStreakScore, ResetTime);
+	
+	return KillScore;
+}
+
+void AShootingGameMode::ResetKillStreakScore()
+{
+	KillScore = 0;
+
+	GetWorld()->GetTimerManager().ClearTimer(KillStreakTimerHandle);
+
 }
 
 void AShootingGameMode::PlayerRespawn(ACharacter* DeadCharacter, AController* DeadController)
@@ -214,3 +253,26 @@ void AShootingGameMode::PlayerRespawn(ACharacter* DeadCharacter, AController* De
 
 	}
 }
+
+
+
+//void AShootingGameMode::CountDownSoundPlay(float Time)
+//{
+//	if (CountDownSound)
+//	{
+//		// 이전에 재생 중인 사운드가 있다면 중지합니다.
+//		if (ActiveCountdownAudioComponent && ActiveCountdownAudioComponent->IsPlaying())
+//		{
+//			ActiveCountdownAudioComponent->Stop();
+//		}
+//
+//		// SpawnSound2D는 UAudioComponent 포인터를 반환합니다.
+//		ActiveCountdownAudioComponent = UGameplayStatics::SpawnSound2D(
+//			GetWorld(),
+//			CountDownSound,
+//			1.0f,    // Volume Multiplier
+//			1.0f,    // Pitch Multiplier
+//			6.f // <-- 여기서 시작 시간을 지정합니다.
+//		);
+//	}
+//}

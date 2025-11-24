@@ -14,6 +14,10 @@ class SHOOT_API UPrepareToAttack : public UUserWidget
 {
 	GENERATED_BODY()
 
+protected:
+
+	//virtual void NativeConstruct() override;
+
 public:
 	//void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
@@ -35,6 +39,12 @@ public:
 	UPROPERTY()
 	float time = 5.f;
 
+	
 
+	/*UPROPERTY()
+	class AShootingGameMode* ShootingGameMode;
+
+	UFUNCTION()
+	void CountDownTimePlaySound();*/
 	
 };

@@ -38,19 +38,33 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 
 	ShootGameInstance = ShootGameInstance == nullptr ? Cast<UShootGameInstance>(GetGameInstance()) : ShootGameInstance;	
 
-	if (ShootGameInstance && NumberOfPlayers == ShootGameInstance->GetNumPublicConnections())	// NumberOfPlayers 사용함
+	if (ShootGameInstance && NumberOfPlayers/* == ShootGameInstance->GetNumPublicConnections()*/)	// NumberOfPlayers 사용함
 	{
-		//UE_LOG(LogTemp, Error, TEXT("ShootGameInstance is Not NULL"));
+		StartDelay();
 
-		UWorld* World = GetWorld();
-		if (!ensure(World != nullptr)) return;
-
-		// 매끄럽게 호스트 레벨에 이동
-		bUseSeamlessTravel = true;
-
-		// World'/Game/Maps/ShootMap.ShootMap'
-		World->ServerTravel(FString("/Game/Maps/ShootMap?listen"));
 	}
+}
+
+void ALobbyGameMode::StartDelay()
+{
+	GetWorld()->GetTimerManager().SetTimer(StartDelayHandle, this, &ALobbyGameMode::TravelShootMap, DelayTime);
+
+}
+
+void ALobbyGameMode::TravelShootMap()
+{
+	//UE_LOG(LogTemp, Error, TEXT("ShootGameInstance is Not NULL"));
+
+	UWorld* World = GetWorld();
+	if (!ensure(World != nullptr)) return;
+
+	// 매끄럽게 호스트 레벨에 이동
+	bUseSeamlessTravel = true;
+
+	// World'/Game/Maps/ShootMap.ShootMap'
+	World->ServerTravel(FString("/Game/Maps/ShootMap?listen"));
+
+	GetWorld()->GetTimerManager().ClearTimer(StartDelayHandle);
 }
 
 void ALobbyGameMode::Logout(AController* Exiting)

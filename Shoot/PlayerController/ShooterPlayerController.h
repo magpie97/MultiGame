@@ -16,6 +16,8 @@ class SHOOT_API AShooterPlayerController : public APlayerController
 	
 public:
 
+	AShooterPlayerController();
+
 	UFUNCTION()
 	void SetHUDHealth(float Health, float MaxHealth);
 
@@ -24,6 +26,56 @@ public:
 	
 	UFUNCTION()
 	void SetHUDDeathScore(int32 DeathScore);
+
+
+
+
+	// ==== test code   작동하는듯
+
+	// killcount
+	int32 kc = 0;
+
+	FTimerHandle KillStreakTimerHandle;
+	FTimerHandle DelayKillStreakTimerHandle;
+
+	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
+	class USoundCue* FirstKill;
+	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
+	class USoundCue* FirstKill_Voice;
+	
+		
+	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
+	class USoundCue* DoubleKill;
+	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
+	class USoundCue* DoubleKill_Voice;
+
+
+	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
+	class USoundCue* TripleKill;
+	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
+	class USoundCue* TripleKill_Voice;
+
+
+	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
+	class USoundCue* QuadraKill;
+	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
+	class USoundCue* QuadraKill_Voice;
+
+
+	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
+	class USoundCue* Pentakill;
+	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
+	class USoundCue* Pentakill_Voice;
+
+
+	UFUNCTION(Client, Reliable)
+	void ClientNotifyKillStreak(int32 KillCount);
+
+	UFUNCTION()
+	void ResetKillStreak();
+
+	// ====
+
 	
 	UFUNCTION()
 	void SetHUDWeaponAmmo(int32 Ammo);
@@ -203,7 +255,6 @@ private:
 
 	UFUNCTION(Client, Unreliable)
 	void ServerToClientSendMessage(const FString& Message);
-
 
 
 	/*
