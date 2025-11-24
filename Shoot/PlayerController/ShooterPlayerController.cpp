@@ -271,7 +271,7 @@ void AShooterPlayerController::ClientNotifyKillStreak_Implementation(int32 KillC
 			UGameplayStatics::PlaySound2D(this, FirstKill);
 			UGameplayStatics::PlaySound2D(this, FirstKill_Voice);
 
-			GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Red, FString::Printf(TEXT("%d"), kc));
+			//GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Red, FString::Printf(TEXT("%d"), kc));
 			
 			break;
 		}

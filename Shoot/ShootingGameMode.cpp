@@ -218,6 +218,9 @@ int32 AShootingGameMode::KillStreakCount(AShooterPlayerController* AttackerPlaye
 	/*AShooterPlayerState* AttackerPlayerState = AttackerPlayerController ? Cast<AShooterPlayerState>(AttackerPlayerController->PlayerState) : nullptr;
 	float KillScore = AttackerPlayerState->GetScore();*/
 
+	
+
+	KillScore += 1; 
 	GetWorld()->GetTimerManager().SetTimer(KillStreakTimerHandle, this, &AShootingGameMode::ResetKillStreakScore, ResetTime);
 	
 	return KillScore;
