@@ -177,7 +177,7 @@ FServerSideRewindResult UServerSideRewindComponent::CheckProjectileHitBody(FServ
 	//PathParams.DrawDebugType = EDrawDebugTrace::ForDuration;
 
 	FPredictProjectilePathResult PathResult;
-	//UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);  임시 주석
+	UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);  //임시 주석
 	
 
 	FHitResult HitResult;

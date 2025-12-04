@@ -33,7 +33,8 @@ public:
 	// ==== test code   작동하는듯
 
 	// killcount
-	int32 kc = 0;
+	//int32 kc = 0;
+
 
 	FTimerHandle KillStreakTimerHandle;
 	FTimerHandle DelayKillStreakTimerHandle;
@@ -67,14 +68,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "KillStreakSound")
 	class USoundCue* Pentakill_Voice;
 
-
+	// 클라 끼리만 들리게 하기
 	UFUNCTION(Client, Reliable)
 	void ClientNotifyKillStreak(int32 KillCount);
 
-	UFUNCTION()
-	void ResetKillStreak();
-
-	// ====
+	// ===================
 
 	
 	UFUNCTION()

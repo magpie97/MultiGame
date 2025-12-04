@@ -4,6 +4,8 @@
 #include "ProjectileWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Projectile.h"
+#include "GameFramework/Pawn.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 void AProjectileWeapon::Fire(const FVector& HitTarget)
@@ -28,6 +30,22 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 		FRotator TargetRotation = ToTarget.Rotation();
 
 
+
+		// test ===============
+
+		// 반동 값  
+		float RendomRecoilPitchValue = UKismetMathLibrary::RandomFloatInRange(PitchMin, PitchMax);
+		float RendomRecoilYawValue = UKismetMathLibrary::RandomFloatInRange(YawMin, YawMax);
+		
+		//총기 반동
+		InstigatorPawn->AddControllerPitchInput(RendomRecoilPitchValue);
+		InstigatorPawn->AddControllerYawInput(RendomRecoilYawValue);
+
+		// ==================
+
+
+
+
 		// 포인터 가져오기
 		FActorSpawnParameters ActorSpawnParameters;
 		ActorSpawnParameters.Owner = GetOwner();
@@ -42,9 +60,6 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 
 		if (bUseServerSideRewind)
 		{
-			// camera shake 기능 추가 필요  (현재 Combat 클래스에 적용했음)
-
-
 			if (InstigatorPawn->HasAuthority()) // 서버에서만 실행
 			{
 				// 현재 클라에선 inpact point에 두번 탄착하는것으로 보여짐 
@@ -59,16 +74,22 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				{
 					SpawnProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
 					SpawnProjectile->bUseServerSideRewind = true;
-					//SpawnProjectile->HeadShotDamage = HeadShotDamage; // test
 				}
 			}
 			else   // 클라이언트 ssr 사용
 			{
-				SpawnProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
-				SpawnProjectile->bUseServerSideRewind = true;
-				SpawnProjectile->TraceStart = SocketTransform.GetLocation();
-				SpawnProjectile->InitVelocity = SpawnProjectile->GetActorForwardVector() * SpawnProjectile->InitSpeed;
-				//SpawnProjectile->HeadShotDamage = HeadShotDamage; // test
+				if (InstigatorPawn->IsLocallyControlled()) // client, locally controlled - spawn non-replicated projectile, use SSR
+				{
+					SpawnProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
+					SpawnProjectile->bUseServerSideRewind = true;
+					SpawnProjectile->TraceStart = SocketTransform.GetLocation();
+					SpawnProjectile->InitVelocity = SpawnProjectile->GetActorForwardVector() * SpawnProjectile->InitSpeed;
+				}
+				else
+				{
+					SpawnProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, ActorSpawnParameters);
+					SpawnProjectile->bUseServerSideRewind = false;
+				}
 			}
 		}
 		else

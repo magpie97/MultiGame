@@ -32,4 +32,17 @@ private:
 	TSubclassOf<class UCameraShakeBase> CameraShake;*/
 
 	
+	UPROPERTY(EditAnywhere, Category = "Recoil Value")
+	float PitchMin = 0;
+	
+	UPROPERTY(EditAnywhere, Category = "Recoil Value")
+	float PitchMax = 0;
+	
+	UPROPERTY(EditAnywhere, Category = "Recoil Value")
+	float YawMin = 0;
+	
+	UPROPERTY(EditAnywhere, Category = "Recoil Value")
+	float YawMax = 0;
+
+	
 };

@@ -79,14 +79,6 @@ public:
 	// 유저가 죽었다면 다시 생성하기위해 해당 캐릭터, 컨트롤러를 준다
 	virtual void PlayerRespawn(ACharacter* DeadCharacter, AController* DeadController);
 
-
-
-	virtual void PlayerKillStreak(AShooterPlayerController* AttackerPlayerController);
-
-	int32 KillStreakCount(AShooterPlayerController* AttackerPlayerController);
-
-
-
 	// 게임 시작 전 10초
 	UPROPERTY(EditDefaultsOnly)
 	float WaitTime = 5.f;	
@@ -114,12 +106,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "KillStreakResetTime")
 	float ResetTime = 5.f;
-
-	UFUNCTION()
-	void ResetKillStreakScore();
-
-	float KillScore = 0;
-
 
 	FORCEINLINE float GetCountdownTime() const { return CountdownTime; }
 

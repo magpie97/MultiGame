@@ -260,18 +260,12 @@ void AShooterPlayerController::SetHUDDeathScore(int32 DeathScore)
 
 void AShooterPlayerController::ClientNotifyKillStreak_Implementation(int32 KillCount)
 {
-	// todo : 킬 카운트사운드를 5호 이후로 킬이 없다면 초기화
-
-	kc = KillCount;
-
-	switch (kc)
+	switch (KillCount)
 	{
 		case 1:
 		{
 			UGameplayStatics::PlaySound2D(this, FirstKill);
 			UGameplayStatics::PlaySound2D(this, FirstKill_Voice);
-
-			//GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Red, FString::Printf(TEXT("%d"), kc));
 			
 			break;
 		}
@@ -279,28 +273,32 @@ void AShooterPlayerController::ClientNotifyKillStreak_Implementation(int32 KillC
 		{
 			UGameplayStatics::PlaySound2D(this, DoubleKill);
 			UGameplayStatics::PlaySound2D(this, DoubleKill_Voice);
-
+			
+			
 			break;
 		}
 		case 3:
 		{
 			UGameplayStatics::PlaySound2D(this, TripleKill);
 			UGameplayStatics::PlaySound2D(this, TripleKill_Voice);
-
+			
+			
 			break;
 		}
 		case 4:
 		{
 			UGameplayStatics::PlaySound2D(this, QuadraKill);
 			UGameplayStatics::PlaySound2D(this, QuadraKill_Voice);
-
+			
+			
 			break;
 		}
 		case 5:
 		{
 			UGameplayStatics::PlaySound2D(this, Pentakill);
 			UGameplayStatics::PlaySound2D(this, Pentakill_Voice);
-
+			
+			
 			break;
 		}
 	}
@@ -309,6 +307,8 @@ void AShooterPlayerController::ClientNotifyKillStreak_Implementation(int32 KillC
 	{
 		UGameplayStatics::PlaySound2D(this, Pentakill);
 		UGameplayStatics::PlaySound2D(this, Pentakill_Voice);
+		
+		
 	}
 
 	
@@ -318,12 +318,6 @@ void AShooterPlayerController::ClientNotifyKillStreak_Implementation(int32 KillC
 	
 	}*/
 
-
-}
-
-void AShooterPlayerController::ResetKillStreak()
-{
-	// todo 일정 시간 이후 킬이 없다면 다시 초기화 5 초 시간이면 충분
 
 }
 

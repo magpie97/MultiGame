@@ -38,7 +38,7 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 
 	ShootGameInstance = ShootGameInstance == nullptr ? Cast<UShootGameInstance>(GetGameInstance()) : ShootGameInstance;	
 
-	if (ShootGameInstance && NumberOfPlayers/* == ShootGameInstance->GetNumPublicConnections()*/)	// NumberOfPlayers 사용함
+	if (ShootGameInstance && NumberOfPlayers >= 2/* == ShootGameInstance->GetNumPublicConnections()*/)	// NumberOfPlayers 사용함
 	{
 		StartDelay();
 

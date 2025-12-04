@@ -23,6 +23,7 @@
 #include "GameFramework/Actor.h"
 #include "Camera/CameraShakeBase.h"
 #include "Components/AudioComponent.h" 
+#include "GameFramework/Pawn.h"
 
 
 UCombatComponent::UCombatComponent()
@@ -316,18 +317,7 @@ void UCombatComponent::FireProjectileWeapon()
 
 	}
 	
-	// test code
-	/*if (CanFire())
-	{
-		ServerSetFire(HitTarget);
-
-		if (Character && !Character->HasAuthority())
-		{
-			LocalFire(HitTarget);
-		}
-		StartFireTimer();
-	}*/
-
+	// 총기 반돌 카메라 AddControllerPitchInput 함수 써야할듯
 
 
 

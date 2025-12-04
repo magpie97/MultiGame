@@ -168,8 +168,21 @@ void AShootingGameMode::PlayerDead(class ABaseCharacter* DeadCharacter, class AS
 		
 		ShooterGameState->UpdateHighScore(AttackerPlayerState);
 
-		// todo AttackerPlayerState 에 저장된 점수를 사용하여 PlayerKillStreak 함수에 적용 필요
-		PlayerKillStreak(AttackerPlayerController);  //test
+
+
+
+		// killstreak
+		AttackerPlayerState->IncrementKillStreak(ResetTime);
+
+		// 현재 killstreak 단계 가져오기
+		int32 CurrentKillStreak = AttackerPlayerState->CurrentKillStreakCount;
+
+		// AttackerPlayerController에게 Client RPC를 호출하며 정확한 단계 전달
+		if (AttackerPlayerController)
+		{
+			AttackerPlayerController->ClientNotifyKillStreak(CurrentKillStreak);
+		}
+
 
 	}
 
@@ -199,41 +212,6 @@ void AShootingGameMode::PlayerDead(class ABaseCharacter* DeadCharacter, class AS
 	}
 }
 
-void AShootingGameMode::PlayerKillStreak(AShooterPlayerController* AttackerPlayerController)
-{
-	int32 killcount = KillStreakCount(AttackerPlayerController);
-
-	AShooterPlayerController* PlayerController = Cast<AShooterPlayerController>(AttackerPlayerController);
-	if (PlayerController)
-	{
-		// todo : 공격자만 들리는 사운드 및 이팩트 위젯 표시 필요  (일단 사운드부터 처리하고 잘되는지 확인필요)
-		PlayerController->ClientNotifyKillStreak(killcount);
-
-	}
-}
-
-int32 AShootingGameMode::KillStreakCount(AShooterPlayerController* AttackerPlayerController)
-{
-	// 사용하는 코드 (만약 킬 초기화 못하면 킬만 하면 킬 이펙트 사운드만 들리게 수정해야할듯)
-	/*AShooterPlayerState* AttackerPlayerState = AttackerPlayerController ? Cast<AShooterPlayerState>(AttackerPlayerController->PlayerState) : nullptr;
-	float KillScore = AttackerPlayerState->GetScore();*/
-
-	
-
-	KillScore += 1; 
-	GetWorld()->GetTimerManager().SetTimer(KillStreakTimerHandle, this, &AShootingGameMode::ResetKillStreakScore, ResetTime);
-	
-	return KillScore;
-}
-
-void AShootingGameMode::ResetKillStreakScore()
-{
-	KillScore = 0;
-
-	GetWorld()->GetTimerManager().ClearTimer(KillStreakTimerHandle);
-
-}
-
 void AShootingGameMode::PlayerRespawn(ACharacter* DeadCharacter, AController* DeadController)
 {
 	// 체크
@@ -256,26 +234,3 @@ void AShootingGameMode::PlayerRespawn(ACharacter* DeadCharacter, AController* De
 
 	}
 }
-
-
-
-//void AShootingGameMode::CountDownSoundPlay(float Time)
-//{
-//	if (CountDownSound)
-//	{
-//		// 이전에 재생 중인 사운드가 있다면 중지합니다.
-//		if (ActiveCountdownAudioComponent && ActiveCountdownAudioComponent->IsPlaying())
-//		{
-//			ActiveCountdownAudioComponent->Stop();
-//		}
-//
-//		// SpawnSound2D는 UAudioComponent 포인터를 반환합니다.
-//		ActiveCountdownAudioComponent = UGameplayStatics::SpawnSound2D(
-//			GetWorld(),
-//			CountDownSound,
-//			1.0f,    // Volume Multiplier
-//			1.0f,    // Pitch Multiplier
-//			6.f // <-- 여기서 시작 시간을 지정합니다.
-//		);
-//	}
-//}

@@ -14,6 +14,7 @@ void AShooterPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 
 	// kill 스코어는 state 클래스 내부 변수는 이미 replicated 하기에 kill score는 복사할 필요 없다 
 	DOREPLIFETIME(AShooterPlayerState, death);
+	DOREPLIFETIME(AShooterPlayerState, CurrentKillStreakCount);
 
 
 }
@@ -101,6 +102,26 @@ void AShooterPlayerState::OnRep_DeathScore()
 			Controller->SetHUDDeathScore(death);
 
 		}
+	}
+
+}
+
+void AShooterPlayerState::IncrementKillStreak(float ResetTime)
+{
+	if (this->HasAuthority()/*GetWorld()->IsServer()*/)
+	{
+		CurrentKillStreakCount++;
+
+		GetWorld()->GetTimerManager().ClearTimer(KillStreakResetTimerHandle);
+		GetWorld()->GetTimerManager().SetTimer(KillStreakResetTimerHandle, this, &AShooterPlayerState::ResetKillStreak, ResetTime);
+	}
+}
+
+void AShooterPlayerState::ResetKillStreak()
+{
+	if (this->HasAuthority()/*GetWorld()->IsServer()*/)
+	{
+		CurrentKillStreakCount = 0;
 	}
 
 }
