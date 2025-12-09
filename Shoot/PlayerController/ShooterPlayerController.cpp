@@ -18,9 +18,9 @@
 #include "Shoot/Character/BaseCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Shoot/ShootGameInstance.h"
-#include "Shoot/HUD/ChatSystem.h"
 #include "Shoot/ShooterPlayerState/ShooterPlayerState.h"
 #include "Sound/SoundCue.h"
+#include "Shoot/ChatSystem/ChatPlayerController.h"
 
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
@@ -28,20 +28,7 @@
 
 AShooterPlayerController::AShooterPlayerController()
 {
-	// SoundCue'/Game/Blueprint/Sound/KillStreak/FirstKill_Trimmed.FirstKill_Trimmed'
-	//static ConstructorHelpers::FClassFinder<AShooterPlayerController> BPKillStreakFirstKillSound(TEXT("/Game/Blueprint/Sound/KillStreak/FirstKill_Trimmed"));
-	//if (BPKillStreakFirstKillSound.Succeeded() && BPKillStreakFirstKillSound.Class != nullptr)
-	//{
-	//	FirstKill = BPKillStreakFirstKillSound.Class;
-	//}
-
-	//// SoundCue'/Game/Blueprint/Sound/KillStreak/DoubleKill_Trimmed.DoubleKill_Trimmed'
-	//static ConstructorHelpers::FClassFinder<AShooterPlayerController> BPKillStreakDoubleKillSound(TEXT("/Game/Blueprint/Sound/KillStreak/DoubleKill_Trimmed"));
-	//if (BPKillStreakDoubleKillSound.Succeeded() && BPKillStreakDoubleKillSound.Class != nullptr)
-	//{
-	//	FirstKill = BPKillStreakDoubleKillSound.Class;
-	//}
-
+	ChatPlayerController = CreateDefaultSubobject<UChatPlayerController>(TEXT("ChatPlayerController"));
 
 
 }
@@ -68,7 +55,7 @@ void AShooterPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	InputComponent->BindAction(FName("Chat"), EInputEvent::IE_Pressed, this, &AShooterPlayerController::FocusChatInputText);
+	
 
 }
 
@@ -650,105 +637,6 @@ void AShooterPlayerController::HandleWaitNextGameStateWidget()
 	}
 }
 
-void AShooterPlayerController::SendMessage(const FText& Text)
-{
-	class UShootGameInstance* GameInstance = GetGameInstance<UShootGameInstance>();
-	class AShooterHUD* HUD = Cast<AShooterHUD>(GetHUD());
-
-	if (GameInstance == nullptr) return;
-	if (HUD == nullptr) return;
-
-
-	if (GameInstance)
-	{
-		// 유저 이름을 못가져옴 :  test 후 가져오는걸 확인 했음 
-		FString UserName = GameInstance->GetUserName();
-
-		//UE_LOG(LogTemp, Warning, TEXT("UserName is (address) : %s"), &UserName);
-		//UE_LOG(LogTemp, Warning, TEXT("UserName is (pointer) : %s"), *UserName);
-
-		//GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Blue, FString::Printf(TEXT("T_UserName : %s"), *UserName));
-
-		//test
-
-
-		FString Message = FString::Printf(TEXT("[%s]: %s"), *UserName, *Text.ToString());
-
-
-
-		
-		// 임시 text만 받아오는걸로 변경 했고 문제 없음 
-		//FString Message = FString::Printf(TEXT("%s"), *Text.ToString());
-		
-		
-		ClientToServerSendMessage(Message); 
-	}
-
-}
-
-void AShooterPlayerController::FocusChatInputText()
-{
-	AShooterHUD* HUD = GetHUD<AShooterHUD>();
-
-	if (HUD == nullptr && ChatSystem == nullptr) return;
-
-
-	// 입력 할 위젯과 플레이어 컨트롤러의 컨트롤을 변경가능한 구조체
-	FInputModeUIOnly InputModeUIOnly;
-	//FInputModeGameOnly InputModeGameOnly;
-
-	//enter 키 입력하면 위젯의 포커스를 변경 
-	InputModeUIOnly.SetWidgetToFocus(HUD->GetChatInputTextObject()); //default InputModeUIOnly
-	
-	InputModeUIOnly.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
-
-
-	// test
-	/*APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	PlayerController->SetShowMouseCursor(false);*/
-
-	SetInputMode(InputModeUIOnly); // 사용중
-
-}
-
-void AShooterPlayerController::FocusGame()
-{
-	SetInputMode(FInputModeGameOnly());  
-
-	// 다시 돌려 놓기 
-	//EnableInput(this);
-	//this->SetShowMouseCursor(false);
-
-	
-}
-
-void AShooterPlayerController::ClientToServerSendMessage_Implementation(const FString& Message)
-{
-	// 레벨에 배치된 모든 컨트롤러를 가진 액터(캐릭터)를 가져와 배열에 저장
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(GetPawn()->GetWorld(), APlayerController::StaticClass(), OutActors);
-
-	// 저장된 배열에 액터 수를 확인 후 클라이언트에 메세지를 보낸다
-	for (AActor* actor : OutActors)
-	{
-		AShooterPlayerController* playercontroller = Cast<AShooterPlayerController>(actor);
-		if (playercontroller)
-		{
-			playercontroller->ServerToClientSendMessage(Message);
-
-		}
-	}
-}
-
-void AShooterPlayerController::ServerToClientSendMessage_Implementation(const FString& Message)
-{
-	// 클라에서 온 문자를 서버한테도 메시지를 표시한다 
-	AShooterHUD* hud = GetHUD<AShooterHUD>();
-	if (hud == nullptr) return;
-
-	hud->AddChatMessage(*Message);  // dereference
-	
-}
 
 void AShooterPlayerController::Announcement_KillFeed(APlayerState* SuspectUserState, APlayerState* VictimUserState)
 {

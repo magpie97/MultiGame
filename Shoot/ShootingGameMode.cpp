@@ -29,10 +29,6 @@ AShootingGameMode::AShootingGameMode()
 	bDelayedStart = true;
 	//bDelayedStart = false; // test
 	
-	// 챗 시스템
-	BaseCharacterClass = ABaseCharacter::StaticClass();
-	ShooterPlayerControllerClass = AShooterPlayerController::StaticClass();
-	ShooterHUDClass = AShooterHUD::StaticClass();
 	
 
 

@@ -56,17 +56,6 @@ private:
 
 public:
 
-	/*
-		채팅 시스템
-	*/
-	TSharedPtr<class SWidget> GetChatInputTextObject();
-	void AddChatMessage(const FString& Message);
-
-	TSubclassOf<class UChatSystem> ChatSystemClass;
-	class UChatSystem* ChatSystem;
-
-	bool CheckUIObject();
-	bool CreateUIObject();
 
 
 public:

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Shoot/ChatSystem/ChatPlayerController.h"
 #include "ShooterPlayerController.generated.h"
 
 /**
@@ -27,6 +28,10 @@ public:
 	UFUNCTION()
 	void SetHUDDeathScore(int32 DeathScore);
 
+
+	// chat system
+	UPROPERTY()
+	class UChatPlayerController* ChatPlayerController;
 
 
 
@@ -188,9 +193,6 @@ private:
 	class UPlayerScoreWidget* PlayerScoreWidget;
 
 	UPROPERTY()
-	class UChatSystem* ChatSystem;
-
-	UPROPERTY()
 	class AWeapon* Weapon;	// test
 
 	// 매치 시간 180초
@@ -235,24 +237,8 @@ public:
 
 
 public:
-	/*
-		인 게임 채팅 시스템
-	*/
-	UFUNCTION()
-	void SendMessage(const FText& Text);
 
-	UFUNCTION()
-	void FocusChatInputText();
 
-	UFUNCTION()
-	void FocusGame();
-
-private:
-	UFUNCTION(Server, Unreliable)  // default server
-	void ClientToServerSendMessage(const FString& Message);
-
-	UFUNCTION(Client, Unreliable)
-	void ServerToClientSendMessage(const FString& Message);
 
 
 	/*

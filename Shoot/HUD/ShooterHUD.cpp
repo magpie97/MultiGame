@@ -6,8 +6,6 @@
 #include "GameFramework/PlayerController.h"
 #include "CharacterOverlay.h"
 #include "PrepareToAttack.h"
-#include "Shoot/HUD/Chat.h"
-#include "Shoot/HUD/ChatSystem.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Shoot/PlayerController/ShooterPlayerController.h"
 #include "Shoot/HUD/KillFeed.h"
@@ -18,13 +16,6 @@
 
 AShooterHUD::AShooterHUD()
 {
-	// WidgetBlueprint'/Game/Blueprint/HUD/WBP_ChatSystem.WBP_ChatSystem'
-	static ConstructorHelpers::FClassFinder<UChatSystem> ChatSystemWBPClass(TEXT("/Game/Blueprint/HUD/WBP_ChatSystem"));
-	
-	if (ChatSystemWBPClass.Succeeded())
-	{
-		ChatSystemClass = ChatSystemWBPClass.Class;
-	}
 	
 
 
@@ -34,7 +25,6 @@ void AShooterHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CheckUIObject();
 
 }
 
@@ -146,47 +136,6 @@ void AShooterHUD::DrawCrosshair(UTexture2D* Texture, FVector2D ViewportSize)
 
 	DrawTexture(Texture, TextureDrawPoint.X, TextureDrawPoint.Y, TextureWidth, TextureHeight, 0.f, 0.f, 1.f, 1.f, FLinearColor::Green);
 
-}
-
-
-
-TSharedPtr<class SWidget> AShooterHUD::GetChatInputTextObject()
-{
-
-	return ChatSystem->GetChatInputTextObject();
-}
-
-void AShooterHUD::AddChatMessage(const FString& Message)
-{
-	if (!CheckUIObject()) return;
-
-	ChatSystem->AddChatMessage(*Message);
-}
-
-bool AShooterHUD::CheckUIObject()
-{
-	// 원래 사용하던 코드
-	if (ChatSystem == nullptr)
-	{
-		return CreateUIObject();
-	}
-
-	return true;
-}
-
-bool AShooterHUD::CreateUIObject()
-{
-	if (ChatSystemClass)
-	{
-		ChatSystem = CreateWidget<UChatSystem>(GetOwningPlayerController(), ChatSystemClass);
-		if (ChatSystem)
-		{
-			ChatSystem->AddToViewport();
-			return true;
-		}
-	}
-
-	return false;
 }
 
 void AShooterHUD::ShowKillFeedWidget(FString SuspectPlayerName, FString VictimPlayerName)
